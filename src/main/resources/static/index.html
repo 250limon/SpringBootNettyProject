@@ -200,19 +200,20 @@
             document.getElementById('chat-container').style.display = 'block';
             addMessage('系统', '登录成功', true);
             if (!hasJoinedRoom) {
+
                 joinRoom();
             }
         } else if (msg.type === 'ERROR') {
             addMessage('系统', msg.content, true, true);
             socket.close();
             hasJoinedRoom = false;
-        } else if (msg.type === 'MSG') {
+        } else if (msg.type === 'ROOM_MSG') {
             addMessage(msg.sender || '未知用户', msg.content, false);
             console.log('收到群聊消息:', msg);
         } else if (msg.type === 'SUCCESS') {
             addMessage('系统', msg.content, true);
             if (msg.content.includes('Joined room')) {
-                currentRoom = roomId;
+                currentRoom = receiver;
                 document.getElementById('current-room').textContent = currentRoom;
                 console.log('已加入房间:', currentRoom);
                 hasJoinedRoom = true;
@@ -283,7 +284,7 @@
             console.error('无法发送消息，未加入房间');
             return;
         }
-        const message = { type: 'MSG', sender: username, receiver: currentRoom, content };
+        const message = { type: 'ROOM_MSG', sender: username, receiver: currentRoom, content };
         socket.send(JSON.stringify(message));
         console.log('发送消息:', message);
         document.getElementById('message-input').value = '';

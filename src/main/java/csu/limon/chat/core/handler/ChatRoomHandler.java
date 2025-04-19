@@ -2,6 +2,7 @@ package csu.limon.chat.core.handler;
 
 import csu.limon.chat.pojo.Message;
 import csu.limon.chat.pojo.MessageType;
+import csu.limon.chat.service.ChatRoomService;
 import csu.limon.chat.service.impl.ChatRoomServiceImpl;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -13,7 +14,7 @@ import java.util.List;
 @Component
 public class ChatRoomHandler extends ParentHandler {
     @Autowired
-    private ChatRoomServiceImpl chatRoomService;
+    private ChatRoomService chatRoomService;
 
     public ChatRoomHandler() {
         super();
@@ -30,9 +31,9 @@ public class ChatRoomHandler extends ParentHandler {
             else if(msg.getType()==MessageType.LEAVE_ROOM){
                 chatRoomService.handleLeaveRoom(ctx,msg,username);
             } else if (msg.getType() == MessageType.CREAT_ROOM) {
-                
-            } else if (msg.getType()==MessageType.SEARCH_ROOM) {
-                
+                chatRoomService.creatRoom(ctx,msg);
+            } else if (msg.getType()==MessageType.ROOM_LIST) {
+                chatRoomService.roomList(ctx,msg);
             }
     }
     @Override

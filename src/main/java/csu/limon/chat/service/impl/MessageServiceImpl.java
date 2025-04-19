@@ -45,4 +45,14 @@ public class MessageServiceImpl implements MessageService {
     public void friendGroupMessageHandler(ChannelHandlerContext ctx, Message msg) throws Exception {
 
     }
+
+    @Override
+    public void chatHistoryHandler(ChannelHandlerContext ctx, Message msg) throws Exception {
+
+    }
+
+    @Override
+    public void userListHandler(ChannelHandlerContext ctx, Message msg) throws Exception {
+
+    }
 }

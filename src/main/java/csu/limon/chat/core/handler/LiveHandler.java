@@ -3,9 +3,10 @@ package csu.limon.chat.core.handler;
 import csu.limon.chat.pojo.Message;
 import csu.limon.chat.pojo.MessageType;
 import io.netty.channel.ChannelHandlerContext;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-
+@Component
 public class LiveHandler extends ParentHandler{
     public LiveHandler() {
         super();

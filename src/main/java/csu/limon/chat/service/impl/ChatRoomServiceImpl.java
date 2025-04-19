@@ -33,6 +33,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ConcurrentHashMap<Channel, String> userRooms = new ConcurrentHashMap<>();
 
    //业务方法
+    @Override
     public void joinRoom(String roomId, Channel channel, String username) {
         System.out.println("Before joining room " + roomId + ", current state: " + rooms.get(roomId));
         //获取某一个房间的
@@ -55,6 +56,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         printRoomUserCount("1");
         printAllRoomsState();
     }
+    @Override
     public void leaveRoom(Channel channel) {
         String roomId = userRooms.remove(channel);
         if (roomId != null) {
@@ -72,6 +74,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             }
         }
     }
+
     public void broadcastMessage(String roomId, Message msg) {
         ConcurrentHashMap<Channel, String> room = rooms.get(roomId);
         if (room != null) {
@@ -97,6 +100,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             System.out.println("No users in room " + roomId + " to broadcast message");
         }
     }
+    @Override
+    public void sendUserList(String roomId) throws Exception{
+        Set<String> users = getUsersInRoom(roomId);
+        String userListJson = JSONUtil.toJsonString(users);
+        Message userListMsg = new Message(MessageType.USER_LIST, null, roomId, userListJson);
+        broadcastMessage(roomId, userListMsg);
+        System.out.println("Sent user list for room " + roomId + ": " + users);
+    }
+    @Override
     public void handleJoinRoom(ChannelHandlerContext ctx, Message msg, String userId)throws Exception {
         String roomId = msg.getReceiver();
         if (roomId == null) {
@@ -131,13 +143,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         sendUserList(roomId);
         System.out.println("User " + userId + " joined room: " + roomId + ", Channel: " + ctx.channel());
     }
-    public void sendUserList(String roomId) throws Exception{
-        Set<String> users = getUsersInRoom(roomId);
-        String userListJson = JSONUtil.toJsonString(users);
-        Message userListMsg = new Message(MessageType.USER_LIST, null, roomId, userListJson);
-        broadcastMessage(roomId, userListMsg);
-        System.out.println("Sent user list for room " + roomId + ": " + users);
-    }
+    @Override
     public void handleLeaveRoom(ChannelHandlerContext ctx, Message msg, String userId)throws Exception {
         String roomId = msg.getReceiver();
         leaveRoom(ctx.channel());
@@ -147,6 +153,14 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         sendUserList(roomId);
         System.out.println("User " + userId + " left room: " + roomId);
     }
+    @Override
+    public void creatRoom(ChannelHandlerContext ctx, Message msg) throws Exception {
+
+    }
+    @Override
+    public void roomList(ChannelHandlerContext ctx, Message msg) throws Exception {
+
+    }
 
 
     //模块方法
@@ -154,6 +168,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         ConcurrentHashMap<Channel, String> room = rooms.get(roomId);
         return room != null ? room.values().stream().collect(Collectors.toSet()) : Set.of();
     }
+    @Override
     public String getUserRoom(Channel channel) {
         return userRooms.get(channel);
     }
