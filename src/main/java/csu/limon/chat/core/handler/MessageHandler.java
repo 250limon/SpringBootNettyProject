@@ -27,6 +27,7 @@ public class MessageHandler extends ParentHandler {
         String username = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
          if(msg.getType()==MessageType.ROOM_MSG)
        {
+           System.out.println("-------------Received message------------" );
            messageService.groupMessageHandle(ctx,msg);
        } else if (msg.getType()==MessageType.FRIEND_MSG) {
              messageService.friendMessageHandler(ctx,msg);

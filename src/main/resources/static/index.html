@@ -8,331 +8,741 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
+            padding: 0;
+            background-color: #e6f3fa;
             color: #333;
         }
-        #login-form, #chat-container {
-            margin-bottom: 20px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        #login-form input, #message-input {
+        .hidden {
+            display: none;
+        }
+        /* 登录和注册页面样式 */
+        .auth-page {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .auth-page h2 {
+            color: #87CEEB;
+        }
+        .auth-page input {
+            width: 90%;
             padding: 10px;
-            margin: 5px;
-            border: 1px solid #ccc;
+            margin: 10px 0;
+            border: 1px solid #87CEEB;
             border-radius: 4px;
-            width: calc(100% - 100px);
         }
-        #login-form button, #send-button, #join-button, #leave-button {
+        .auth-page button {
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #87CEEB;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             margin: 5px;
         }
-        #login-form button:hover, #send-button:hover, #join-button:hover, #leave-button:hover {
-            background-color: #0056b3;
+        .auth-page button:hover {
+            background-color: #5DADE2;
         }
-        #chat-area {
+        .auth-page .error {
+            color: red;
+            margin: 10px 0;
+        }
+        .auth-page a {
+            color: #87CEEB;
+            text-decoration: none;
+        }
+        .auth-page a:hover {
+            text-decoration: underline;
+        }
+        /* 主页面头部 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #87CEEB;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .header .site-name {
+            font-size: 24px;
+            color: white;
+        }
+        .header .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .header .friend-request-btn {
+            background-color: #5DADE2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .header .friend-request-btn:hover {
+            background-color: #4682B4;
+        }
+        /* 好友申请悬浮框 */
+        .friend-request-popup {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: white;
+            border: 1px solid #87CEEB;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            z-index: 1001;
+        }
+        .friend-request-popup .request-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .friend-request-popup .request-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .friend-request-popup .request-item button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .friend-request-popup .request-item .accept {
+            background-color: #87CEEB;
+            color: white;
+        }
+        .friend-request-popup .request-item .reject {
+            background-color: #FF6B6B;
+            color: white;
+        }
+        /* 主页面主体 */
+        .main-content {
+            margin-top: 60px;
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #f0faff;
+            padding: 20px;
+            border-right: 1px solid #87CEEB;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar li {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .sidebar li:hover, .sidebar li.active {
+            background-color: #87CEEB;
+            color: white;
+        }
+        .center-area {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin-left: 20px;
+        }
+        /* 聊天室 */
+        .chat-room .room-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #87CEEB;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .chat-room .room-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-bottom: 1px solid #e6f3fa;
+        }
+        .chat-room .room-item button {
+            padding: 5px 10px;
+            background-color: #87CEEB;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .chat-room .room-item button:hover {
+            background-color: #5DADE2;
+        }
+        .chat-room input, .chat-room button {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #87CEEB;
+            border-radius: 4px;
+        }
+        .chat-room button {
+            background-color: #87CEEB;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .chat-room button:hover {
+            background-color: #5DADE2;
+        }
+        .chat-room .chat-area {
             height: 300px;
-            border: 1px solid #ccc;
+            border: 1px solid #87CEEB;
             border-radius: 4px;
             overflow-y: auto;
             padding: 10px;
-            background-color: #fafafa;
             margin-bottom: 10px;
         }
-        .message {
+        .chat-room .message {
             margin: 5px 0;
             padding: 8px;
             border-radius: 4px;
         }
-        .message.system {
+        .chat-room .message.system {
             color: #555;
             font-style: italic;
         }
-        .message.user {
+        .chat-room .message.user {
             background-color: #e7f3ff;
         }
-        .message.error {
-            color: red;
-            font-weight: bold;
-        }
-        #status {
-            text-align: center;
-            color: #555;
+        .chat-room .online-users {
             margin-top: 10px;
         }
-        #room-info {
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-        #online-users {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-        }
-        #online-users h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-        }
-        #online-users ul {
+        .chat-room .online-users ul {
             list-style: none;
             padding: 0;
-            margin: 0;
         }
-        #online-users li {
+        .chat-room .online-users li {
             padding: 5px;
-            color: #333;
+        }
+        /* 新朋友 */
+        .new-friends input {
+            width: 50%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #87CEEB;
+            border-radius: 4px;
+        }
+        .new-friends .search-results .result-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e6f3fa;
+        }
+        .new-friends .search-results .result-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .new-friends .search-results .result-item button {
+            padding: 5px 10px;
+            background-color: #87CEEB;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        /* 我的好友 */
+        .my-friends {
+            display: flex;
+        }
+        .my-friends .friend-list {
+            width: 30%;
+            border-right: 1px solid #87CEEB;
+            padding: 10px;
+        }
+        .my-friends .friend-list .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #e6f3fa;
+            cursor: pointer;
+        }
+        .my-friends .friend-list .friend-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .my-friends .friend-list .friend-item.active {
+            background-color: #e7f3ff;
+        }
+        .my-friends .chat-panel {
+            flex: 1;
+            padding: 10px;
+        }
+        .my-friends .chat-panel .chat-area {
+            height: 300px;
+            border: 1px solid #87CEEB;
+            border-radius: 4px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .my-friends .chat-panel input, .my-friends .chat-panel button {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #87CEEB;
+            border-radius: 4px;
+        }
+        .my-friends .chat-panel button {
+            background-color: #87CEEB;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        /* 好友动态 */
+        .friend-news .news-item {
+            padding: 10px;
+            border-bottom: 1px solid #e6f3fa;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>实时群聊</h1>
-    <div id="login-form">
-        <input id="username" type="text" placeholder="用户名 (如: user1)" required>
-        <input id="password" type="password" placeholder="密码 (如: password1)" required>
-        <input id="room-id" type="text" placeholder="房间ID (如: room1)" required>
+    <!-- 登录页面 -->
+    <div id="login-page" class="auth-page">
+        <h2>登录</h2>
+        <input id="login-username" type="text" placeholder="账号" required>
+        <input id="login-password" type="password" placeholder="密码" required>
+        <div id="login-error" class="error"></div>
         <button onclick="login()">登录</button>
+        <p><a href="#" onclick="showPage('register-page')">没有账号？去注册</a></p>
     </div>
-    <div id="chat-container" style="display: none;">
-        <div id="room-info">当前房间: <span id="current-room">无</span></div>
-        <div id="online-users">
-            <h3>在线用户</h3>
-            <ul id="user-list"></ul>
+    <!-- 注册页面 -->
+    <div id="register-page" class="auth-page hidden">
+        <h2>注册</h2>
+        <input id="register-username" type="text" placeholder="用户名" required>
+        <input id="register-password" type="password" placeholder="密码" required>
+        <input id="register-image" type="file" accept="image/*">
+        <div id="register-error" class="error"></div>
+        <button onclick="register()">注册</button>
+        <p><a href="#" onclick="showPage('login-page')">已有账号？去登录</a></p>
+    </div>
+    <!-- 主页面 -->
+    <div id="main-page" class="hidden">
+        <div class="header">
+            <div class="site-name">实时群聊</div>
+            <div class="user-info">
+                <img src="./images/yoimiya1.jpg" alt="用户头像">
+                <button class="friend-request-btn" onclick="toggleFriendRequestPopup()">好友申请</button>
+            </div>
         </div>
-        <div id="chat-area"></div>
-        <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendMessage()">
-        <button id="send-button" onclick="sendMessage()">发送</button>
-        <button id="join-button" onclick="joinRoom()">加入房间</button>
-        <button id="leave-button" onclick="leaveRoom()">离开房间</button>
+        <div class="friend-request-popup hidden" id="friend-request-popup">
+            <!-- 动态生成好友申请 -->
+        </div>
+        <div class="main-content">
+            <div class="sidebar">
+                <ul>
+                    <li onclick="switchFunction('friend-news')" class="active">好友动态</li>
+                    <li onclick="switchFunction('chat-room')">聊天室</li>
+                    <li onclick="switchFunction('new-friends')">新朋友</li>
+                    <li onclick="switchFunction('my-friends')">我的好友</li>
+                </ul>
+            </div>
+            <div class="center-area">
+                <!-- 好友动态 -->
+                <div id="friend-news" class="content">
+                    <h3>好友动态</h3>
+                    <div class="news-item">张三: 今天心情很好！</div>
+                    <div class="news-item">李四: 刚加入了一个新房间！</div>
+                </div>
+                <!-- 聊天室 -->
+                <div id="chat-room" class="content hidden">
+                    <h3>聊天室</h3>
+                    <div class="room-list" id="room-list">
+                        <!-- 动态生成聊天室列表 -->
+                    </div>
+                    <input id="create-room-name" type="text" placeholder="新房间名称">
+                    <button onclick="createRoom()">创建房间</button>
+                    <button onclick="leaveRoom()">离开房间</button>
+                    <div class="chat-area" id="chat-area"></div>
+                    <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendRoomMessage()">
+                    <button onclick="sendRoomMessage()">发送</button>
+                    <div class="online-users">
+                        <h4>在线用户</h4>
+                        <ul id="online-user-list"></ul>
+                    </div>
+                </div>
+                <!-- 新朋友 -->
+                <div id="new-friends" class="content hidden">
+                    <h3>新朋友</h3>
+                    <input id="search-user" type="text" placeholder="搜索用户..." onkeypress="if(event.key === 'Enter') searchUser()">
+                    <button onclick="searchUser()">搜索</button>
+                    <div class="search-results" id="search-results">
+                        <!-- 动态生成搜索结果 -->
+                    </div>
+                </div>
+                <!-- 我的好友 -->
+                <div id="my-friends" class="content hidden">
+                    <h3>我的好友</h3>
+                    <div class="my-friends">
+                        <div class="friend-list" id="friend-list">
+                            <!-- 动态生成好友列表 -->
+                        </div>
+                        <div class="chat-panel">
+                            <div class="chat-area" id="friend-chat-area"></div>
+                            <input id="friend-message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendFriendMessage()">
+                            <button onclick="sendFriendMessage()">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="status">未连接</div>
 </div>
 
 <script>
     let socket = null;
     let username = '';
-    let receiver = '';
     let currentRoom = '';
+    let currentFriend = '';
     let hasJoinedRoom = false;
 
+    // 页面切换
+    function showPage(pageId) {
+        document.querySelectorAll('.auth-page, #main-page').forEach(page => page.classList.add('hidden'));
+        document.getElementById(pageId).classList.remove('hidden');
+        if (pageId === 'login-page') {
+            document.getElementById('login-error').textContent = '';
+        } else if (pageId === 'register-page') {
+            document.getElementById('register-error').textContent = '';
+        }
+    }
+
+    // 功能切换
+    function switchFunction(funcId) {
+        document.querySelectorAll('.content').forEach(content => content.classList.add('hidden'));
+        document.getElementById(funcId).classList.remove('hidden');
+        document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+        document.querySelector(`.sidebar li[onclick="switchFunction('${funcId}')"]`).classList.add('active');
+        if (funcId === 'chat-room' && socket) {
+            socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
+            // 默认加载房间列表
+            updateRoomList([
+                { id: 'room1', name: '公共聊天室1', users: 5 },
+                { id: 'room2', name: '公共聊天室2', users: 3 }
+            ]);
+        } else if (funcId === 'my-friends' && socket) {
+            socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
+        } else if (funcId === 'new-friends') {
+            document.getElementById('search-results').innerHTML = '';
+        }
+    }
+
+    // 登录
     function login() {
-        // TODO:获取登录信息
-        username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        receiver = document.getElementById('room-id').value.trim();
-
-        if (!username || !password || !receiver) {
-            alert('请输入用户名、密码和房间ID');
-            console.error('登录失败，缺少输入:', { username, password, receiver });
+        username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+        if (!username || !password) {
+            document.getElementById('login-error').textContent = '请输入账号和密码';
             return;
         }
-        //ws://表示使用的是WebSocket协议，localhost:8080为服务器地址和端口。/ws是服务的1路径
         socket = new WebSocket('ws://localhost:8080/ws');
-        //连接建立成功后所要执行的回调函数
         socket.onopen = () => {
-            console.log('WebSocket 已连接，状态:', socket.readyState);
-            updateStatus('已连接');
-            setTimeout(() => {
-                const loginMessage = {
-                    type: 'LOGIN',
-                    //序列化为json
-                    content: JSON.stringify({ username, password })
-                };
-                //序列化为json字符串，并发送给服务器，websocket要求发送的数据是字符串或二进制格式
-                socket.send(JSON.stringify(loginMessage));
-                console.log('发送登录消息:', loginMessage);
-            }, 100);
+            const loginMessage = {
+                type: 'LOGIN',
+                content: JSON.stringify({ username, password })
+            };
+            socket.send(JSON.stringify(loginMessage));
         };
-        //当服务器通过 WebSocket 连接发送消息到客户端时，这个函数会被触发。
-        socket.onmessage = (event) => {
-            console.log('收到消息:', event.data);
-            let msg;
-            try {
-                //解析为js对象
-                msg = JSON.parse(event.data);
-                console.log('解析后的消息:', msg);
-            } catch (e) {
-                console.error('解析消息失败:', e);
-                addMessage('系统', '消息格式错误', true, true);
-                return;
-            }
-            handleMessage(msg);
+        socket.onmessage = handleMessage;
+        socket.onclose = () => {
+            showPage('login-page');
+            addRoomMessage('系统', '连接断开，请重新登录', true, true);
         };
-
-        socket.onclose = (event) => {
-            console.log('WebSocket 已断开，代码:', event.code, '原因:', event.reason);
-            updateStatus('已断开连接');
-            addMessage('系统', '连接已断开，请重新登录', true, true);
-            showLoginForm();
-            hasJoinedRoom = false;
-        };
-
-        socket.onerror = (error) => {
-            console.error('WebSocket 错误:', error);
-            updateStatus('发生错误');
-            addMessage('系统', '连接错误，请重试', true, true);
-            hasJoinedRoom = false;
+        socket.onerror = () => {
+            document.getElementById('login-error').textContent = '连接错误，请重试';
         };
     }
 
-    function handleMessage(msg) {
-        console.log('处理消息:', msg);
+    // 注册
+    function register() {
+        const username = document.getElementById('register-username').value.trim();
+        const password = document.getElementById('register-password').value.trim();
+        const imageInput = document.getElementById('register-image').files[0];
+        if (!username || !password) {
+            document.getElementById('register-error').textContent = '请输入用户名和密码';
+            return;
+        }
+        const content = { username, password, image: imageInput ? './images/yoimiya1.jpg' : './images/yoimiya1.jpg' };
+        socket = new WebSocket('ws://localhost:8080/ws');
+        socket.onopen = () => {
+            const registerMessage = {
+                type: 'REGISTER',
+                content: JSON.stringify(content)
+            };
+            socket.send(JSON.stringify(registerMessage));
+        };
+        socket.onmessage = handleMessage;
+        socket.onclose = () => {
+            showPage('login-page');
+        };
+        socket.onerror = () => {
+            document.getElementById('register-error').textContent = '连接错误，请重试';
+        };
+    }
+
+    // 处理消息
+    function handleMessage(event) {
+        let msg;
+        try {
+            msg = JSON.parse(event.data);
+        } catch (e) {
+            addRoomMessage('系统', '消息格式错误', true, true);
+            return;
+        }
         if (msg.type === 'SUCCESS' && msg.content.includes('Login successful')) {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
-            addMessage('系统', '登录成功', true);
-            if (!hasJoinedRoom) {
-
-                joinRoom();
-            }
+            showPage('main-page');
+            switchFunction('friend-news');
+            socket.send(JSON.stringify({ type: 'APPLY_LIST' }));
+        } else if (msg.type === 'SUCCESS' && msg.content.includes('Register successful')) {
+            document.getElementById('register-error').textContent = '注册成功，请登录';
+            showPage('login-page');
         } else if (msg.type === 'ERROR') {
-            addMessage('系统', msg.content, true, true);
-            socket.close();
-            hasJoinedRoom = false;
-        } else if (msg.type === 'ROOM_MSG') {
-            addMessage(msg.sender || '未知用户', msg.content, false);
-            console.log('收到群聊消息:', msg);
-        } else if (msg.type === 'SUCCESS') {
-            addMessage('系统', msg.content, true);
-            if (msg.content.includes('Joined room')) {
-                currentRoom = receiver;
-                document.getElementById('current-room').textContent = currentRoom;
-                console.log('已加入房间:', currentRoom);
-                hasJoinedRoom = true;
-            } else if (msg.content.includes('Left room')) {
-                currentRoom = '';
-                document.getElementById('current-room').textContent = '无';
-                document.getElementById('user-list').innerHTML = '';
-                console.log('已离开房间');
-                hasJoinedRoom = false;
-            } else if (msg.content.includes('Already in room')) {
-                console.log('已收到已在房间确认:', currentRoom);
-                hasJoinedRoom = true;
+            if (msg.content.includes('Invalid username or password')) {
+                document.getElementById('login-error').textContent = '密码错误';
+            } else if (msg.content.includes('User not found')) {
+                document.getElementById('login-error').textContent = '账号不存在';
+            } else {
+                document.getElementById('login-error').textContent = msg.content;
+                document.getElementById('register-error').textContent = msg.content;
             }
+        } else if (msg.type === 'ROOM_LIST') {
+            updateRoomList(JSON.parse(msg.content));
+        } else if (msg.type === 'SUCCESS' && msg.content.includes('Joined room')) {
+            currentRoom = msg.content.split(':')[1].trim();
+            hasJoinedRoom = true;
+            addRoomMessage('系统', `已加入房间 ${currentRoom}`, true);
+        } else if (msg.type === 'SUCCESS' && msg.content.includes('Left room')) {
+            currentRoom = '';
+            hasJoinedRoom = false;
+            addRoomMessage('系统', '已离开房间', true);
+            document.getElementById('online-user-list').innerHTML = '';
+        } else if (msg.type === 'ROOM_MSG') {
+            addRoomMessage(msg.sender, msg.content, false);
         } else if (msg.type === 'USER_LIST') {
-            updateUserList(msg.content);
-            console.log('收到用户列表:', msg.content);
-        } else {
-            console.warn('未知消息类型:', msg.type);
-            addMessage('系统', '收到未知消息类型: ' + msg.type, true, true);
+            updateOnlineUserList(JSON.parse(msg.content));
+        } else if (msg.type === 'FRIEND_LIST') {
+            updateFriendList(JSON.parse(msg.content));
+        } else if (msg.type === 'FRIEND_MSG') {
+            addFriendMessage(msg.sender, msg.content, msg.sender === currentFriend);
+        } else if (msg.type === 'APPLY_LIST') {
+            updateFriendRequestList(JSON.parse(msg.content));
         }
     }
 
-    function joinRoom() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            alert('未连接到服务器');
-            console.error('无法加入房间，WebSocket 未连接:', socket ? socket.readyState : 'null');
-            return;
-        }
-        receiver = document.getElementById('room-id').value.trim();
-        if (!receiver) {
-            alert('请输入房间ID');
-            console.error('无法加入房间，缺少 roomId');
-            return;
-        }
-        if (hasJoinedRoom) {
-            console.log('已加入房间:', receiver, '忽略重复 JOIN_ROOM');
-            return;
-        }
-        socket.send(JSON.stringify({ type: 'JOIN_ROOM', receiver }));
-        console.log('发送加入房间消息:', { type: 'JOIN_ROOM', receiver });
+    // 聊天室功能
+    function createRoom() {
+        const roomName = document.getElementById('create-room-name').value.trim();
+        if (!roomName || !socket) return;
+        socket.send(JSON.stringify({ type: 'CREAT_ROOM', content: roomName }));
+    }
+
+    function joinRoom(roomId) {
+        if (!roomId || !socket) return;
+        socket.send(JSON.stringify({ type: 'JOIN_ROOM', receiver: roomId }));
     }
 
     function leaveRoom() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            alert('未连接到服务器');
-            console.error('无法离开房间，WebSocket 未连接:', socket ? socket.readyState : 'null');
-            return;
-        }
-        const leaveMessage = { type: 'LEAVE_ROOM', receiver: currentRoom };
-        socket.send(JSON.stringify(leaveMessage));
-        console.log('发送离开房间消息:', leaveMessage);
-        currentRoom = '';
-        document.getElementById('current-room').textContent = '无';
-        document.getElementById('user-list').innerHTML = '';
-        addMessage('系统', '已离开房间', true);
-        hasJoinedRoom = false;
+        if (!currentRoom || !socket) return;
+        socket.send(JSON.stringify({ type: 'LEAVE_ROOM', receiver: currentRoom }));
     }
 
-    function sendMessage() {
+    function sendRoomMessage() {
         const content = document.getElementById('message-input').value.trim();
-        if (!content || !socket || socket.readyState !== WebSocket.OPEN) {
-            alert('请输入消息并确保已连接');
-            console.error('无法发送消息，WebSocket 未连接或无内容:', socket ? socket.readyState : 'null', content);
-            return;
-        }
-        if (!currentRoom) {
-            alert('请先加入一个房间');
-            console.error('无法发送消息，未加入房间');
-            return;
-        }
-        const message = { type: 'ROOM_MSG', sender: username, receiver: currentRoom, content };
-        socket.send(JSON.stringify(message));
-        console.log('发送消息:', message);
+        if (!content || !currentRoom || !socket) return;
+        socket.send(JSON.stringify({ type: 'ROOM_MSG', sender: username, receiver: currentRoom, content }));
         document.getElementById('message-input').value = '';
     }
 
-    function addMessage(sender, content, isSystem, isError = false) {
-        const chatArea = document.getElementById('chat-area');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
-        const timestamp = new Date().toLocaleTimeString();
-        messageDiv.textContent = `[${timestamp}] ${sender}: ${content}`;
-        chatArea.appendChild(messageDiv);
-        chatArea.scrollTop = chatArea.scrollHeight;
-        console.log('添加消息到聊天区域:', { sender, content, isSystem, isError });
+    function updateRoomList(rooms) {
+        const roomList = document.getElementById('room-list');
+        roomList.innerHTML = '';
+        rooms.forEach(room => {
+            const div = document.createElement('div');
+            div.className = 'room-item';
+            div.innerHTML = `
+                <span>${room.name} (ID: ${room.id}, 在线: ${room.users})</span>
+                <button onclick="joinRoom('${room.id}')">加入</button>
+            `;
+            roomList.appendChild(div);
+        });
     }
 
-    function updateUserList(users) {
-        const userList = document.getElementById('user-list');
+    function updateOnlineUserList(users) {
+        const userList = document.getElementById('online-user-list');
         userList.innerHTML = '';
-        try {
-            const userArray = JSON.parse(users);
-            userArray.forEach(user => {
-                const li = document.createElement('li');
-                li.textContent = user;
-                userList.appendChild(li);
-            });
-            console.log('更新用户列表:', userArray);
-        } catch (e) {
-            console.error('解析用户列表失败:', e);
-            addMessage('系统', '更新用户列表失败', true, true);
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = user;
+            userList.appendChild(li);
+        });
+    }
+
+    // 新朋友功能
+    function searchUser() {
+        const query = document.getElementById('search-user').value.trim();
+        if (!query || !socket) return;
+        // 模拟搜索结果
+        const results = [
+            { id: 'user3', name: '王五' },
+            { id: 'user4', name: '赵六' }
+        ];
+        updateSearchResults(results);
+    }
+
+    function updateSearchResults(users) {
+        const searchResults = document.getElementById('search-results');
+        searchResults.innerHTML = '';
+        users.forEach(user => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `
+                <img src="./images/yoimiya1.jpg" alt="头像">
+                <span>${user.name}</span>
+                <button onclick="addFriend('${user.id}')">添加好友</button>
+            `;
+            searchResults.appendChild(div);
+        });
+    }
+
+    function addFriend(userId) {
+        if (!socket) return;
+        socket.send(JSON.stringify({ type: 'ADD_FRIEND', receiver: userId }));
+    }
+
+    // 我的好友功能
+    function updateFriendList(friends) {
+        const friendList = document.getElementById('friend-list');
+        friendList.innerHTML = '';
+        friends.forEach(friend => {
+            const div = document.createElement('div');
+            div.className = `friend-item ${currentFriend === friend.id ? 'active' : ''}`;
+            div.onclick = () => selectFriend(friend.id, friend.name);
+            div.innerHTML = `
+                <img src="./images/yoimiya1.jpg" alt="头像">
+                <span>${friend.name}</span>
+            `;
+            friendList.appendChild(div);
+        });
+    }
+
+    function selectFriend(friendId, friendName) {
+        currentFriend = friendId;
+        document.getElementById('friend-chat-area').innerHTML = '';
+        updateFriendList([{ id: 'user1', name: '张三' }, { id: 'user2', name: '李四' }]); // 重新渲染以更新 active 状态
+        addFriendMessage('系统', `开始与 ${friendName} 聊天`, true);
+    }
+
+    function sendFriendMessage() {
+        const content = document.getElementById('friend-message-input').value.trim();
+        if (!content || !currentFriend || !socket) return;
+        socket.send(JSON.stringify({ type: 'FRIEND_MSG', sender: username, receiver: currentFriend, content }));
+        document.getElementById('friend-message-input').value = '';
+        addFriendMessage(username, content, true);
+    }
+
+    function addFriendMessage(sender, content, isCurrentFriend) {
+        if (!isCurrentFriend && sender !== currentFriend) return;
+        const chatArea = document.getElementById('friend-chat-area');
+        const div = document.createElement('div');
+        div.className = `message ${sender === '系统' ? 'system' : 'user'}`;
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${sender}: ${content}`;
+        chatArea.appendChild(div);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // 好友申请
+    function toggleFriendRequestPopup() {
+        const popup = document.getElementById('friend-request-popup');
+        popup.classList.toggle('hidden');
+        if (!popup.classList.contains('hidden') && socket) {
+            socket.send(JSON.stringify({ type: 'APPLY_LIST' }));
         }
     }
 
-    function updateStatus(status) {
-        document.getElementById('status').textContent = status;
-        console.log('更新状态:', status);
+    function updateFriendRequestList(requests) {
+        const popup = document.getElementById('friend-request-popup');
+        popup.innerHTML = '';
+        requests.forEach(req => {
+            const div = document.createElement('div');
+            div.className = 'request-item';
+            div.innerHTML = `
+                <img src="./images/yoimiya1.jpg" alt="头像">
+                <span>${req.name}</span>
+                <button class="accept" onclick="acceptFriend('${req.id}')">同意</button>
+                <button class="reject" onclick="rejectFriend('${req.id}')">拒绝</button>
+            `;
+            popup.appendChild(div);
+        });
     }
 
-    function showLoginForm() {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('chat-container').style.display = 'none';
-        document.getElementById('chat-area').innerHTML = '';
-        document.getElementById('current-room').textContent = '无';
-        document.getElementById('user-list').innerHTML = '';
-        currentRoom = '';
-        hasJoinedRoom = false;
-        console.log('显示登录表单');
+    function acceptFriend(userId) {
+        if (!socket) return;
+        socket.send(JSON.stringify({ type: 'RECEIVE_APPLY', receiver: userId }));
+        toggleFriendRequestPopup();
     }
+
+    function rejectFriend(userId) {
+        if (!socket) return;
+        socket.send(JSON.stringify({ type: 'REJECT_APPLY', receiver: userId }));
+        toggleFriendRequestPopup();
+    }
+
+    // 聊天室消息
+    function addRoomMessage(sender, content, isSystem, isError = false) {
+        const chatArea = document.getElementById('chat-area');
+        const div = document.createElement('div');
+        div.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${sender}: ${content}`;
+        chatArea.appendChild(div);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // 初始化模拟数据
+    updateRoomList([
+        { id: '1', name: '公共聊天室1', users: 5 },
+        { id: '2', name: '公共聊天室2', users: 3 }
+    ]);
+    updateFriendList([
+        { id: 'user1', name: '张三' },
+        { id: 'user2', name: '李四' }
+    ]);
+    updateFriendRequestList([
+        { id: 'user5', name: '周七' },
+        { id: 'user6', name: '吴八' }
+    ]);
 </script>
 </body>
 </html>
