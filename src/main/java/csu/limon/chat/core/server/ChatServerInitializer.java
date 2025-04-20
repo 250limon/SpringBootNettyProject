@@ -23,6 +23,8 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
     private final ChatRoomHandler chatRoomHandler;
     private final MessageHandler messageHandler;
     private final LiveHandler liveHandler;
+    private final FriendHandler friendHandler;
+
 
     @Autowired
     public ChatServerInitializer(
@@ -32,7 +34,8 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
             HeartbeatHandler heartbeatHandler,
             ChatRoomHandler chatRoomHandler,
             MessageHandler messageHandler,
-            LiveHandler liveHandler) {
+            LiveHandler liveHandler,
+            FriendHandler friendHandler) {
         this.authHandler = authHandler;
         this.webSocketFrameHandler = webSocketFrameHandler;
         this.messageEncoder = messageEncoder;
@@ -40,6 +43,7 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
         this.chatRoomHandler = chatRoomHandler;
         this.messageHandler = messageHandler;
         this.liveHandler = liveHandler;
+        this.friendHandler = friendHandler;
     }
 
     @Override
@@ -55,7 +59,8 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
                 .addLast(authHandler)
                 .addLast(chatRoomHandler)
                 .addLast(messageHandler)
-                .addLast(liveHandler);
+                .addLast(liveHandler)
+                .addLast(friendHandler);
 
         System.out.println("Initialized pipeline for channel: " + ch);
     }

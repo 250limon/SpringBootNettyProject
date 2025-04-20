@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="csu.limon.chat.mapper.ApplyMapper">
+
+    <resultMap id="BaseResultMap" type="csu.limon.chat.pojo.Apply">
+            <result property="respondent" column="respondent" jdbcType="INTEGER"/>
+            <result property="applicant" column="applicant" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        respondent,applicant
+    </sql>
+</mapper>
