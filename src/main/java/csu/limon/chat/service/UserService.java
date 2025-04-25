@@ -17,5 +17,6 @@ public interface UserService extends IService<User> {
 
 
      void login(ChannelHandlerContext ctx,Message msg) throws Exception;
-     void register(ChannelHandlerContext ctx,Message msg) throws Exception;
+     void register(String username,String password,String image) throws Exception;
+     void getUser(ChannelHandlerContext ctx, Message msg) throws Exception;
 }

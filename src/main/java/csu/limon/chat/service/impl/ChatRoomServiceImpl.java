@@ -7,8 +7,10 @@ import csu.limon.chat.util.JSONUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.AttributeKey;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         值：String（用户名，如 "user1"）。
     示例：rooms.get("1") 返回 {channel1=user1, channel2=1}，表示房间 1 有用户 user1 和 1 */
     private final ConcurrentHashMap<String, ConcurrentHashMap<Channel, String>> rooms = new ConcurrentHashMap<>();//存储所有聊天室的状态
+
     //记录每个通道当前所在的房间
     /*TODO:
        键：Channel（WebSocket 连接）。
@@ -31,8 +34,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
        示例：userRooms.get(channel1) 返回 "1"，表示 channel1 在房间 1
      */
     private final ConcurrentHashMap<Channel, String> userRooms = new ConcurrentHashMap<>();
+    private int createdRoomCount = 0; // 用于跟踪创建的房间数量
+    private final ConcurrentHashMap<String,String> roomIdToName=new ConcurrentHashMap<>();
 
-   //业务方法
+    //业务方法
     @Override
     public void joinRoom(String roomId, Channel channel, String username) {
         System.out.println("Before joining room " + roomId + ", current state: " + rooms.get(roomId));
@@ -136,7 +141,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             System.out.println("User " + userId + " left previous room: " + currentRoom);
         }
 
-       joinRoom(roomId, ctx.channel(), userId);
+        joinRoom(roomId, ctx.channel(), userId);
         ctx.writeAndFlush(new TextWebSocketFrame(
                 JSONUtil.toJsonString(new Message(MessageType.SUCCESS, null, null, "Joined room: " + roomId))
         ));
@@ -155,14 +160,59 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
     @Override
     public void creatRoom(ChannelHandlerContext ctx, Message msg) throws Exception {
+        // 获取房间号
+        String roomName = msg.getContent();
+        // 检查房间是否已经存在
+        boolean roomExists = userRooms.values().stream().anyMatch(r -> r.equals(roomName));
+        if (roomExists) {
+            // 如果房间已经存在，发送错误响应
+            Message response = new Message();
+            response.setType(MessageType.ERROR);
+            response.setContent("房间" + roomName + "已经存在啦，请改个名字吧！ ");
+            System.out.println("房间" + roomName + "已经存在啦，请改个名字吧！ ");
+            ctx.writeAndFlush(response);
+            return;
+        }
 
+        // 检查当前用户是否已经在一个房间中
+        Channel channel = ctx.channel();
+        if (userRooms.containsKey(channel)) {
+            // 如果用户已经在某个房间中，发送错误响应
+            Message response = new Message();
+            response.setType(MessageType.ERROR);
+            response.setContent("你已经进入了房间 " + userRooms.get(channel)+"，不能再创建新房间啦！: ");
+            System.out.println("你已经进入了房间 " + userRooms.get(channel)+"，不能再创建新房间啦！: ");
+            ctx.writeAndFlush(response);
+            return;
+        }
+
+        // 将当前用户与房间关联
+        userRooms.put(channel, roomName);
+        this.createdRoomCount++;
+        String roomId = String.valueOf(this.createdRoomCount);
+        roomIdToName.put(roomId,roomName);
+        // 创建房间
+        // 创建响应消息
+        Message response = new Message();
+        response.setReceiver(roomId);
+        String userid= (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+        handleJoinRoom(ctx, response, userid);
+        System.out.println( "由用户" + userid +"创建房间：" + roomName );
     }
     @Override
     public void roomList(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        // 获取所有房间ID
+        Set<String> roomIds = new HashSet<>(roomIdToName.values());
+        roomIds.addAll(userRooms.values());
+        // 创建响应消息
+        Message response = new Message();
+        response.setType(MessageType.SUCCESS);
+        response.setContent(String.join(",", roomIds)); // 将房间ID用逗号分隔成一个字符串
+        // 将响应发送回客户端
+        ctx.writeAndFlush(response);
+        // 打印日志
+        System.out.println("由用户查询的房间列表: "  + ", 房间有: " + roomIds);
     }
-
-
     //模块方法
     public Set<String> getUsersInRoom(String roomId) {
         ConcurrentHashMap<Channel, String> room = rooms.get(roomId);

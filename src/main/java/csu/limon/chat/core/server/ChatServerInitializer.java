@@ -24,6 +24,7 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
     private final MessageHandler messageHandler;
     private final LiveHandler liveHandler;
     private final FriendHandler friendHandler;
+    private final HttpRegisterHandler httpRegisterHandler;
 
 
     @Autowired
@@ -35,7 +36,8 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
             ChatRoomHandler chatRoomHandler,
             MessageHandler messageHandler,
             LiveHandler liveHandler,
-            FriendHandler friendHandler) {
+            FriendHandler friendHandler,
+            HttpRegisterHandler httpRegisterHandler) {
         this.authHandler = authHandler;
         this.webSocketFrameHandler = webSocketFrameHandler;
         this.messageEncoder = messageEncoder;
@@ -44,13 +46,15 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
         this.messageHandler = messageHandler;
         this.liveHandler = liveHandler;
         this.friendHandler = friendHandler;
+        this.httpRegisterHandler = httpRegisterHandler;
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline()
                 .addLast(new HttpServerCodec())
-                .addLast(new HttpObjectAggregator(65536))
+                .addLast(new HttpObjectAggregator(10 * 1024 * 1024))
+                .addLast(httpRegisterHandler)
                 .addLast(new WebSocketServerProtocolHandler("/ws"))
                 .addLast(webSocketFrameHandler)
                 .addLast(messageEncoder)

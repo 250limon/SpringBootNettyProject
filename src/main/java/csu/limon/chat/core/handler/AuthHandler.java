@@ -32,17 +32,14 @@ public class AuthHandler extends ParentHandler {
         {
             userService.login(ctx,msg);
         }
-        else if(msg.getType()==MessageType.REGISTER)
-        {
-            userService.register(ctx, msg);
-        }
+
 
     }
 
     @Override
     void addMessageType(List<MessageType> messageTypes) {
         messageTypes.add(MessageType.LOGIN);
-        messageTypes.add(MessageType.REGISTER);
+
     }
 
 

@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>实时群聊</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #e6f3fa;
-            color: #333;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            color: #2d3748;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
         .container {
             max-width: 1200px;
@@ -19,46 +25,64 @@
         }
         .hidden {
             display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         /* 登录和注册页面样式 */
         .auth-page {
             max-width: 400px;
             margin: 100px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             text-align: center;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease forwards;
         }
         .auth-page h2 {
-            color: #87CEEB;
+            color: #0288d1;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
         .auth-page input {
-            width: 90%;
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin: 10px 0;
-            border: 1px solid #87CEEB;
-            border-radius: 4px;
+            border: 1px solid #81d4fa;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .auth-page input:focus {
+            border-color: #0288d1;
+            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            outline: none;
         }
         .auth-page button {
-            padding: 10px 20px;
-            background-color: #87CEEB;
-            color: white;
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .auth-page button:hover {
-            background-color: #5DADE2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
         }
         .auth-page .error {
-            color: red;
+            color: #d32f2f;
             margin: 10px 0;
+            font-size: 14px;
         }
         .auth-page a {
-            color: #87CEEB;
+            color: #0288d1;
             text-decoration: none;
+            font-size: 14px;
         }
         .auth-page a:hover {
             text-decoration: underline;
@@ -69,262 +93,530 @@
             top: 0;
             left: 0;
             right: 0;
-            background-color: #87CEEB;
-            padding: 10px 20px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            padding: 15px 30px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
         .header .site-name {
-            font-size: 24px;
-            color: white;
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: 600;
         }
         .header .user-info img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            vertical-align: middle;
-            margin-right: 10px;
+            margin-right: 12px;
+            border: 2px solid #ffffff;
         }
         .header .friend-request-btn {
-            background-color: #5DADE2;
-            color: white;
+            background: #039be5;
+            color: #ffffff;
             border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
         .header .friend-request-btn:hover {
-            background-color: #4682B4;
+            background: #0288d1;
+            transform: translateY(-2px);
         }
         /* 好友申请悬浮框 */
         .friend-request-popup {
             position: fixed;
-            top: 60px;
-            right: 20px;
-            background: white;
-            border: 1px solid #87CEEB;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
+            top: 70px;
+            right: 30px;
+            background: #ffffff;
+            border: 1px solid #81d4fa;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            max-width: 320px;
             z-index: 1001;
+            animation: fadeIn 0.3s ease;
         }
         .friend-request-popup .request-item {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+        .friend-request-popup .request-item:hover {
+            background: #e1f5fe;
         }
         .friend-request-popup .request-item img {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 12px;
         }
         .friend-request-popup .request-item button {
-            padding: 5px 10px;
-            margin-left: 5px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 13px;
+            transition: transform 0.2s ease;
+        }
+        .friend-request-popup .request-item button:hover {
+            transform: translateY(-1px);
         }
         .friend-request-popup .request-item .accept {
-            background-color: #87CEEB;
-            color: white;
+            background: #0288d1;
+            color: #ffffff;
         }
         .friend-request-popup .request-item .reject {
-            background-color: #FF6B6B;
-            color: white;
+            background: #ef5350;
+            color: #ffffff;
         }
         /* 主页面主体 */
         .main-content {
-            margin-top: 60px;
+            margin-top: 80px;
             display: flex;
-            min-height: calc(100vh - 80px);
+            min-height: calc(100vh - 100px);
         }
         .sidebar {
-            width: 200px;
-            background-color: #f0faff;
+            width: 220px;
+            background: #ffffff;
             padding: 20px;
-            border-right: 1px solid #87CEEB;
+            border-right: 1px solid #b3e5fc;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
         }
         .sidebar ul {
             list-style: none;
             padding: 0;
         }
         .sidebar li {
-            padding: 10px;
-            margin: 5px 0;
+            padding: 12px 15px;
+            margin: 8px 0;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
         }
-        .sidebar li:hover, .sidebar li.active {
-            background-color: #87CEEB;
-            color: white;
+        .sidebar li:hover {
+            background: #e1f5fe;
+            transform: translateX(5px);
+        }
+        .sidebar li.active {
+            background: #0288d1;
+            color: #ffffff;
+            transform: translateX(5px);
         }
         .center-area {
             flex: 1;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 12px;
             margin-left: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
         }
-        /* 聊天室 */
-        .chat-room .room-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #87CEEB;
-            padding: 10px;
-            border-radius: 4px;
+        /* 聊天室样式（美化） */
+        .chat-room {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .chat-room h3 {
+            color: #0288d1;
+            font-size: 24px;
+            font-weight: 600;
             margin-bottom: 10px;
+            animation: slideInLeft 0.5s ease;
+        }
+        .chat-room .room-list {
+            background: #f9fbfc;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #b3e5fc;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .chat-room .room-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-room .room-list::-webkit-scrollbar-thumb {
+            background: #81d4fa;
+            border-radius: 4px;
         }
         .chat-room .room-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 5px;
-            border-bottom: 1px solid #e6f3fa;
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: fadeInUp 0.3s ease;
+        }
+        .chat-room .room-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.2);
+        }
+        .chat-room .room-item span {
+            font-size: 15px;
+            color: #2d3748;
         }
         .chat-room .room-item button {
-            padding: 5px 10px;
-            background-color: #87CEEB;
-            color: white;
+            padding: 8px 16px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .chat-room .room-item button:hover {
-            background-color: #5DADE2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
         }
-        .chat-room input, .chat-room button {
-            padding: 8px;
-            margin: 5px;
-            border: 1px solid #87CEEB;
-            border-radius: 4px;
+        .chat-room .room-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
         }
-        .chat-room button {
-            background-color: #87CEEB;
-            color: white;
+        .chat-room .room-controls input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .chat-room .room-controls input:focus {
+            border-color: #0288d1;
+            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            outline: none;
+        }
+        .chat-room .room-controls button {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .chat-room button:hover {
-            background-color: #5DADE2;
+        .chat-room .room-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+        }
+        .chat-room .room-controls button.leave {
+            background: linear-gradient(90deg, #ef5350, #e53935);
+        }
+        .chat-room .room-controls button.leave:hover {
+            box-shadow: 0 4px 12px rgba(239, 83, 80, 0.3);
         }
         .chat-room .chat-area {
-            height: 300px;
-            border: 1px solid #87CEEB;
-            border-radius: 4px;
+            background: #f9fbfc;
+            border-radius: 12px;
+            padding: 20px;
+            height: 400px;
             overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
+            border: 1px solid #b3e5fc;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .chat-room .chat-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-room .chat-area::-webkit-scrollbar-thumb {
+            background: #81d4fa;
+            border-radius: 4px;
         }
         .chat-room .message {
-            margin: 5px 0;
-            padding: 8px;
-            border-radius: 4px;
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            animation: messageSlideIn 0.3s ease;
+            max-width: 80%;
+            word-wrap: break-word;
         }
         .chat-room .message.system {
-            color: #555;
+            background: #eceff1;
+            color: #546e7a;
             font-style: italic;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            max-width: 60%;
         }
         .chat-room .message.user {
-            background-color: #e7f3ff;
+            background: #e3f2fd;
+            color: #2d3748;
+            margin-left: 10px;
+        }
+        .chat-room .message.error {
+            background: #ffebee;
+            color: #d32f2f;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        .chat-room .message-timestamp {
+            font-size: 12px;
+            color: #78909c;
+            margin-bottom: 5px;
+        }
+        .chat-room .message-content {
+            line-height: 1.4;
+        }
+        .chat-room .message-sender {
+            font-weight: 600;
+            color: #0288d1;
+        }
+        .chat-room .message-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .chat-room .message-input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .chat-room .message-input-group input:focus {
+            border-color: #0288d1;
+            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            outline: none;
+        }
+        .chat-room .message-input-group button {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chat-room .message-input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
         }
         .chat-room .online-users {
-            margin-top: 10px;
+            margin-top: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #b3e5fc;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .chat-room .online-users h4 {
+            color: #0288d1;
+            font-size: 18px;
+            margin-bottom: 10px;
+            animation: slideInLeft 0.5s ease;
         }
         .chat-room .online-users ul {
             list-style: none;
             padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .chat-room .online-users ul::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-room .online-users ul::-webkit-scrollbar-thumb {
+            background: #81d4fa;
+            border-radius: 3px;
         }
         .chat-room .online-users li {
-            padding: 5px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #2d3748;
+            transition: background 0.2s ease, transform 0.2s ease;
+            animation: fadeInUp 0.3s ease;
         }
-        /* 新朋友 */
+        .chat-room .online-users li:hover {
+            background: #e1f5fe;
+            transform: translateX(5px);
+        }
+        /* 其他页面样式（保持不变） */
         .new-friends input {
-            width: 50%;
-            padding: 8px;
-            margin: 10px 0;
-            border: 1px solid #87CEEB;
-            border-radius: 4px;
+            width: 60%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #b3e5fc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .new-friends input:focus {
+            border-color: #0288d1;
+            outline: none;
         }
         .new-friends .search-results .result-item {
             display: flex;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #e6f3fa;
+            padding: 12px;
+            border-bottom: 1px solid #e0f7fa;
+            transition: background 0.2s ease;
+            animation: fadeIn 0.3s ease;
+        }
+        .new-friends .search-results .result-item:hover {
+            background: #e1f5fe;
         }
         .new-friends .search-results .result-item img {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 12px;
         }
         .new-friends .search-results .result-item button {
-            padding: 5px 10px;
-            background-color: #87CEEB;
-            color: white;
+            padding: 8px 16px;
+            background: #0288d1;
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
-            margin-left: 10px;
+            border-radius: 6px;
+            margin-left: 12px;
             cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
-        /* 我的好友 */
+        .new-friends .search-results .result-item button:hover {
+            background: #0277bd;
+            transform: translateY(-1px);
+        }
         .my-friends {
             display: flex;
         }
         .my-friends .friend-list {
-            width: 30%;
-            border-right: 1px solid #87CEEB;
-            padding: 10px;
+            width: 35%;
+            border-right: 1px solid #b3e5fc;
+            padding: 15px;
         }
         .my-friends .friend-list .friend-item {
             display: flex;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #e6f3fa;
+            padding: 12px;
+            border-bottom: 1px solid #e0f7fa;
             cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
-        .my-friends .friend-list .friend-item img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-right: 10px;
+        .my-friends .friend-list .friend-item:hover {
+            background: #e1f5fe;
+            transform: translateX(3px);
         }
         .my-friends .friend-list .friend-item.active {
-            background-color: #e7f3ff;
+            background: #b3e5fc;
+        }
+        .my-friends .friend-list .friend-item img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
         }
         .my-friends .chat-panel {
             flex: 1;
-            padding: 10px;
+            padding: 15px;
         }
         .my-friends .chat-panel .chat-area {
-            height: 300px;
-            border: 1px solid #87CEEB;
-            border-radius: 4px;
+            height: 320px;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
             overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9fbfc;
         }
         .my-friends .chat-panel input, .my-friends .chat-panel button {
-            padding: 8px;
-            margin: 5px;
-            border: 1px solid #87CEEB;
-            border-radius: 4px;
+            padding: 10px;
+            margin: 8px;
+            border: 1px solid #b3e5fc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .my-friends .chat-panel input:focus {
+            border-color: #0288d1;
+            outline: none;
         }
         .my-friends .chat-panel button {
-            background-color: #87CEEB;
-            color: white;
+            background: #0288d1;
+            color: #ffffff;
             border: none;
             cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
-        /* 好友动态 */
+        .my-friends .chat-panel button:hover {
+            background: #0277bd;
+            transform: translateY(-1px);
+        }
         .friend-news .news-item {
-            padding: 10px;
-            border-bottom: 1px solid #e6f3fa;
+            padding: 12px;
+            border-bottom: 1px solid #e0f7fa;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+        .friend-news .news-item:hover {
+            background: #e1f5fe;
+        }
+        /* 动画 */
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
     </style>
 </head>
@@ -383,12 +675,16 @@
                     <div class="room-list" id="room-list">
                         <!-- 动态生成聊天室列表 -->
                     </div>
-                    <input id="create-room-name" type="text" placeholder="新房间名称">
-                    <button onclick="createRoom()">创建房间</button>
-                    <button onclick="leaveRoom()">离开房间</button>
+                    <div class="room-controls">
+                        <input id="create-room-name" type="text" placeholder="输入新房间名称">
+                        <button onclick="createRoom()">创建房间</button>
+                        <button class="leave" onclick="leaveRoom()">离开房间</button>
+                    </div>
                     <div class="chat-area" id="chat-area"></div>
-                    <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendRoomMessage()">
-                    <button onclick="sendRoomMessage()">发送</button>
+                    <div class="message-input-group">
+                        <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendRoomMessage()">
+                        <button onclick="sendRoomMessage()">发送</button>
+                    </div>
                     <div class="online-users">
                         <h4>在线用户</h4>
                         <ul id="online-user-list"></ul>
@@ -429,10 +725,16 @@
     let currentFriend = '';
     let hasJoinedRoom = false;
 
-    // 页面切换
     function showPage(pageId) {
-        document.querySelectorAll('.auth-page, #main-page').forEach(page => page.classList.add('hidden'));
-        document.getElementById(pageId).classList.remove('hidden');
+        document.querySelectorAll('.auth-page, #main-page').forEach(page => {
+            page.classList.add('hidden');
+            page.style.opacity = '0';
+        });
+        const targetPage = document.getElementById(pageId);
+        targetPage.classList.remove('hidden');
+        setTimeout(() => {
+            targetPage.style.opacity = '1';
+        }, 10);
         if (pageId === 'login-page') {
             document.getElementById('login-error').textContent = '';
         } else if (pageId === 'register-page') {
@@ -440,19 +742,20 @@
         }
     }
 
-    // 功能切换
     function switchFunction(funcId) {
-        document.querySelectorAll('.content').forEach(content => content.classList.add('hidden'));
-        document.getElementById(funcId).classList.remove('hidden');
+        document.querySelectorAll('.content').forEach(content => {
+            content.classList.add('hidden');
+            content.style.opacity = '0';
+        });
+        const targetContent = document.getElementById(funcId);
+        targetContent.classList.remove('hidden');
+        setTimeout(() => {
+            targetContent.style.opacity = '1';
+        }, 10);
         document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
         document.querySelector(`.sidebar li[onclick="switchFunction('${funcId}')"]`).classList.add('active');
         if (funcId === 'chat-room' && socket) {
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
-            // 默认加载房间列表
-            updateRoomList([
-                { id: 'room1', name: '公共聊天室1', users: 5 },
-                { id: 'room2', name: '公共聊天室2', users: 3 }
-            ]);
         } else if (funcId === 'my-friends' && socket) {
             socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
         } else if (funcId === 'new-friends') {
@@ -460,7 +763,6 @@
         }
     }
 
-    // 登录
     function login() {
         username = document.getElementById('login-username').value.trim();
         const password = document.getElementById('login-password').value.trim();
@@ -486,34 +788,42 @@
         };
     }
 
-    // 注册
     function register() {
         const username = document.getElementById('register-username').value.trim();
         const password = document.getElementById('register-password').value.trim();
         const imageInput = document.getElementById('register-image').files[0];
+
         if (!username || !password) {
             document.getElementById('register-error').textContent = '请输入用户名和密码';
             return;
         }
-        const content = { username, password, image: imageInput ? './images/yoimiya1.jpg' : './images/yoimiya1.jpg' };
-        socket = new WebSocket('ws://localhost:8080/ws');
-        socket.onopen = () => {
-            const registerMessage = {
-                type: 'REGISTER',
-                content: JSON.stringify(content)
-            };
-            socket.send(JSON.stringify(registerMessage));
-        };
-        socket.onmessage = handleMessage;
-        socket.onclose = () => {
-            showPage('login-page');
-        };
-        socket.onerror = () => {
-            document.getElementById('register-error').textContent = '连接错误，请重试';
-        };
+
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+        if (imageInput) {
+            formData.append('image', imageInput);
+        }
+
+        fetch('http://localhost:8080/register', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.type === 'SUCCESS') {
+                    document.getElementById('register-error').textContent = '注册成功，请登录';
+                    showPage('login-page');
+                } else {
+                    document.getElementById('register-error').textContent = data.content || '注册失败，请重试';
+                }
+            })
+            .catch(error => {
+                console.error('注册错误:', error);
+                document.getElementById('register-error').textContent = '连接错误，请重试';
+            });
     }
 
-    // 处理消息
     function handleMessage(event) {
         let msg;
         try {
@@ -529,17 +839,14 @@
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Register successful')) {
             document.getElementById('register-error').textContent = '注册成功，请登录';
             showPage('login-page');
-        } else if (msg.type === 'ERROR') {
-            if (msg.content.includes('Invalid username or password')) {
-                document.getElementById('login-error').textContent = '密码错误';
-            } else if (msg.content.includes('User not found')) {
-                document.getElementById('login-error').textContent = '账号不存在';
-            } else {
-                document.getElementById('login-error').textContent = msg.content;
-                document.getElementById('register-error').textContent = msg.content;
-            }
-        } else if (msg.type === 'ROOM_LIST') {
-            updateRoomList(JSON.parse(msg.content));
+        } else if (msg.type === 'SUCCESS' && msg.content.includes('Friend request sent')) {
+            document.getElementById('search-results').innerHTML = '';
+            document.getElementById('search-user').value = '';
+            alert('好友请求已发送');
+        } else if (msg.type === 'SUCCESS' && msg.content.includes('Room created')) {
+            document.getElementById('create-room-name').value = '';
+            socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
+            addRoomMessage('系统', '房间创建成功', true);
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Joined room')) {
             currentRoom = msg.content.split(':')[1].trim();
             hasJoinedRoom = true;
@@ -547,14 +854,33 @@
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Left room')) {
             currentRoom = '';
             hasJoinedRoom = false;
-            addRoomMessage('系统', '已离开房间', true);
+            document.getElementById('chat-area').innerHTML = '';
             document.getElementById('online-user-list').innerHTML = '';
+            addRoomMessage('系统', '已离开房间', true);
+        } else if (msg.type === 'ERROR') {
+            if (msg.content.includes('Invalid username or password')) {
+                document.getElementById('login-error').textContent = '密码错误';
+            } else if (msg.content.includes('User not found')) {
+                document.getElementById('login-error').textContent = '账号不存在';
+            } else if (msg.content.includes('ADD_FRIEND')) {
+                alert('添加好友失败: ' + msg.content);
+            } else {
+                document.getElementById('login-error').textContent = msg.content;
+                document.getElementById('register-error').textContent = msg.content;
+            }
+        } else if (msg.type === 'ROOM_LIST') {
+            updateRoomList(JSON.parse(msg.content));
         } else if (msg.type === 'ROOM_MSG') {
             addRoomMessage(msg.sender, msg.content, false);
         } else if (msg.type === 'USER_LIST') {
             updateOnlineUserList(JSON.parse(msg.content));
-        } else if (msg.type === 'FRIEND_LIST') {
-            updateFriendList(JSON.parse(msg.content));
+        } else if (msg.type === 'SEARCH_FRIEND') {
+            const users = JSON.parse(msg.content);
+            if (document.getElementById('new-friends').classList.contains('hidden')) {
+                updateFriendList(users);
+            } else {
+                updateSearchResults(users);
+            }
         } else if (msg.type === 'FRIEND_MSG') {
             addFriendMessage(msg.sender, msg.content, msg.sender === currentFriend);
         } else if (msg.type === 'APPLY_LIST') {
@@ -562,7 +888,6 @@
         }
     }
 
-    // 聊天室功能
     function createRoom() {
         const roomName = document.getElementById('create-room-name').value.trim();
         if (!roomName || !socket) return;
@@ -589,6 +914,10 @@
     function updateRoomList(rooms) {
         const roomList = document.getElementById('room-list');
         roomList.innerHTML = '';
+        if (rooms.length === 0) {
+            roomList.innerHTML = '<p>暂无聊天室</p>';
+            return;
+        }
         rooms.forEach(room => {
             const div = document.createElement('div');
             div.className = 'room-item';
@@ -610,26 +939,28 @@
         });
     }
 
-    // 新朋友功能
     function searchUser() {
         const query = document.getElementById('search-user').value.trim();
-        if (!query || !socket) return;
-        // 模拟搜索结果
-        const results = [
-            { id: 'user3', name: '王五' },
-            { id: 'user4', name: '赵六' }
-        ];
-        updateSearchResults(results);
+        if (!query || !socket) {
+            document.getElementById('search-results').innerHTML = '<p>请输入搜索内容或检查连接</p>';
+            return;
+        }
+        socket.send(JSON.stringify({ type: 'SEARCH_FRIEND', content: query }));
     }
 
     function updateSearchResults(users) {
         const searchResults = document.getElementById('search-results');
         searchResults.innerHTML = '';
+        if (users.length === 0) {
+            searchResults.innerHTML = '<p>未找到用户</p>';
+            return;
+        }
         users.forEach(user => {
             const div = document.createElement('div');
+            const src = './images/' + (user.image ? user.image : 'yoimiya1.jpg');
             div.className = 'result-item';
             div.innerHTML = `
-                <img src="./images/yoimiya1.jpg" alt="头像">
+                <img src="${src}" alt="头像">
                 <span>${user.name}</span>
                 <button onclick="addFriend('${user.id}')">添加好友</button>
             `;
@@ -638,11 +969,13 @@
     }
 
     function addFriend(userId) {
-        if (!socket) return;
+        if (!socket) {
+            alert('未连接到服务器，请重新登录');
+            return;
+        }
         socket.send(JSON.stringify({ type: 'ADD_FRIEND', receiver: userId }));
     }
 
-    // 我的好友功能
     function updateFriendList(friends) {
         const friendList = document.getElementById('friend-list');
         friendList.innerHTML = '';
@@ -651,7 +984,7 @@
             div.className = `friend-item ${currentFriend === friend.id ? 'active' : ''}`;
             div.onclick = () => selectFriend(friend.id, friend.name);
             div.innerHTML = `
-                <img src="./images/yoimiya1.jpg" alt="头像">
+                <img src="${friend.image || './images/yoimiya1.jpg'}" alt="头像">
                 <span>${friend.name}</span>
             `;
             friendList.appendChild(div);
@@ -661,7 +994,7 @@
     function selectFriend(friendId, friendName) {
         currentFriend = friendId;
         document.getElementById('friend-chat-area').innerHTML = '';
-        updateFriendList([{ id: 'user1', name: '张三' }, { id: 'user2', name: '李四' }]); // 重新渲染以更新 active 状态
+        socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
         addFriendMessage('系统', `开始与 ${friendName} 聊天`, true);
     }
 
@@ -683,7 +1016,6 @@
         chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // 好友申请
     function toggleFriendRequestPopup() {
         const popup = document.getElementById('friend-request-popup');
         popup.classList.toggle('hidden');
@@ -699,7 +1031,7 @@
             const div = document.createElement('div');
             div.className = 'request-item';
             div.innerHTML = `
-                <img src="./images/yoimiya1.jpg" alt="头像">
+                <img src="${req.image || './images/yoimiya1.jpg'}" alt="头像">
                 <span>${req.name}</span>
                 <button class="accept" onclick="acceptFriend('${req.id}')">同意</button>
                 <button class="reject" onclick="rejectFriend('${req.id}')">拒绝</button>
@@ -720,17 +1052,20 @@
         toggleFriendRequestPopup();
     }
 
-    // 聊天室消息
     function addRoomMessage(sender, content, isSystem, isError = false) {
         const chatArea = document.getElementById('chat-area');
         const div = document.createElement('div');
         div.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
-        div.textContent = `[${new Date().toLocaleTimeString()}] ${sender}: ${content}`;
+        div.innerHTML = `
+            <div class="message-timestamp">[${new Date().toLocaleTimeString()}]</div>
+            <div class="message-content">
+                <span class="message-sender">${sender}</span>: ${content}
+            </div>
+        `;
         chatArea.appendChild(div);
         chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // 初始化模拟数据
     updateRoomList([
         { id: '1', name: '公共聊天室1', users: 5 },
         { id: '2', name: '公共聊天室2', users: 3 }

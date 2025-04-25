@@ -22,13 +22,16 @@ public class FriendHandler extends ParentHandler{
     @Override
     protected void process(ChannelHandlerContext ctx, Message msg) throws Exception {
         if(msg.getType()==MessageType.ADD_FRIEND){
-
-        }
-        else if(msg.getType()==MessageType.DELETE_FRIEND){
             friendService.addFriend(ctx,msg);
         }
-        else if(msg.getType()==MessageType.FRIEND_LIST){
+        else if(msg.getType()==MessageType.DELETE_FRIEND){
             friendService.deleteFriend(ctx,msg);
+        }
+        else if(msg.getType()==MessageType.FRIEND_LIST){
+            friendService.friendList(ctx,msg);
+        }
+        else if(msg.getType()==MessageType.SEARCH_FRIEND){
+            friendService.searchFriend(ctx,msg);
         }
         else if(msg.getType()==MessageType.APPLY_LIST){
             friendService.findApplyList(ctx,msg);
@@ -49,5 +52,6 @@ public class FriendHandler extends ParentHandler{
         messageTypes.add(MessageType.APPLY_LIST);
         messageTypes.add(MessageType.RECEIVE_APPLY);
         messageTypes.add(MessageType.REJECT_APPLY);
+        messageTypes.add(MessageType.SEARCH_FRIEND);
     }
 }

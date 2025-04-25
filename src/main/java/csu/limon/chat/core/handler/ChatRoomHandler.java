@@ -40,6 +40,8 @@ public class ChatRoomHandler extends ParentHandler {
     void addMessageType(List<MessageType> messageTypes) {
         messageTypes.add(MessageType.JOIN_ROOM);
         messageTypes.add(MessageType.LEAVE_ROOM);
+        messageTypes.add(MessageType.CREAT_ROOM);
+        messageTypes.add(MessageType.ROOM_LIST);
     }
     private void sendUserList(String roomId) throws Exception{
        chatRoomService.sendUserList(roomId);

@@ -11,8 +11,11 @@ import io.netty.channel.ChannelHandlerContext;
 * @createDate 2025-04-19 14:09:57
 */
 public interface FriendService extends IService<Friend> {
-     void addFriend(ChannelHandlerContext ctx, Message msg) throws Exception;
+     boolean isFriendExist(String sender);
+     void addFriend(ChannelHandlerContext ctx,Message msg) throws Exception;
      void deleteFriend(ChannelHandlerContext ctx, Message msg) throws Exception;
+     void searchFriend(ChannelHandlerContext ctx, Message msg) throws Exception;
+     void friendList(ChannelHandlerContext ctx, Message msg) throws Exception;
      void findApplyList(ChannelHandlerContext ctx, Message msg) throws Exception;
      void receiveApply(ChannelHandlerContext ctx, Message msg) throws Exception;
      void rejectApply(ChannelHandlerContext ctx, Message msg) throws Exception;

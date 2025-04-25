@@ -5,6 +5,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.context.annotation.Bean;
 
 @MapperScan("csu.limon.chat.mapper")
@@ -14,6 +15,8 @@ public class SpringBootNettyProjectApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringBootNettyProjectApplication.class, args);
     }
+
+
 
     @Bean
     public CommandLineRunner commandLineRunner(ChatServer chatServer) {

@@ -61,9 +61,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         isValidCredentials(loginRequest,ctx);
     }
 
+    @Override
+    public void register(String username, String password, String image) throws Exception {
+        User user=new User();
+        user.setName(username);
+        user.setPassword(password);
+        user.setImage(image);
+        userMapper.insert(user);
+    }
+
     private void isValidCredentials(AuthHandler.LoginRequest loginRequest,ChannelHandlerContext ctx) {
         if(loginRequest.getUsername()!=null && loginRequest.getPassword()!=null) {
-            //System.out.println(loginRequest.getUsername()+loginRequest.getPassword());
             if(!isAccountExist(loginRequest.getUsername())){
                 try {
                     System.out.println("账户不存在!");
@@ -97,9 +105,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     }
 
+
+
+
     @Override
-    public void register(ChannelHandlerContext ctx, Message msg) {
-        // 实现注册逻辑
+    public void getUser(ChannelHandlerContext ctx, Message msg) throws Exception {
+        String userId=msg.getContent();
+        User user=userMapper.selectById(Integer.parseInt(userId));
+        String Juser=JSONUtil.toJsonString(user);
+        String Username = user.getName();
+        String Password = user.getPassword();
+        String Image = user.getImage();
+        MessageSender.response(ctx,new Message(MessageType.GET_USER,null,null,Juser));
+    }
+
+    class RegisterRequest {
+        private String Username;
+        private String Password;
+        private String Image;
+
+        public String getUsername() {
+            return Username;
+        }
+
+        public void setUsername(String username) {
+            Username = username;
+        }
+
+        public String getPassword() {
+            return Password;
+        }
+
+        public void setPassword(String password) {
+            Password = password;
+        }
+
+        public String getImage() {
+            return Image;
+        }
+
+        public void setImage(String image) {
+            Image = image;
+        }
     }
 }
 
