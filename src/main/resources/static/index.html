@@ -24,7 +24,7 @@
             padding: 20px;
         }
         .hidden {
-            display: none;
+            display: none !important;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -219,111 +219,150 @@
             margin-left: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.5s ease;
+            position: relative;
+            min-height: 500px;
         }
-        /* 聊天室样式（美化） */
-        .chat-room {
+        /* 通用内容样式 */
+        .content {
+            padding: 20px;
+            display: block;
+        }
+        .content h3 {
+            color: #0288d1;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+        /* 聊天室样式 */
+        #chat-room.content {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
         }
-        .chat-room h3 {
-            color: #0288d1;
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            animation: slideInLeft 0.5s ease;
+        #chat-room.content .chat-room-container {
+            display: flex;
+            gap: 20px;
+            flex: 1;
         }
-        .chat-room .room-list {
-            background: #f9fbfc;
-            border-radius: 12px;
+        #chat-room.content .chat-room-container .room-list-panel {
+            width: 80%;
+            border-right: 1px solid #b3e5fc;
             padding: 15px;
-            max-height: 250px;
+            max-height: 500px;
             overflow-y: auto;
-            border: 1px solid #b3e5fc;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            background: #f9fbfc;
+            border-radius: 8px;
         }
-        .chat-room .room-list::-webkit-scrollbar {
+        #chat-room.content .chat-room-container .room-list-panel::-webkit-scrollbar {
             width: 8px;
         }
-        .chat-room .room-list::-webkit-scrollbar-thumb {
+        #chat-room.content .chat-room-container .room-list-panel::-webkit-scrollbar-thumb {
             background: #81d4fa;
             border-radius: 4px;
         }
-        .chat-room .room-item {
+        #chat-room.content .chat-room-container .room-list-panel #room-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item {
+            padding: 15px;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            animation: fadeInUp 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(2, 136, 209, 0.25);
+            background: linear-gradient(145deg, #e3f2fd, #ffffff);
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #0288d1, #81d4fa);
+            transition: height 0.3s ease;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item:hover::before {
+            height: 8px;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item .room-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0288d1;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item .room-name::before {
+            content: '🏠';
+            font-size: 16px;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item .room-info {
+            font-size: 13px;
+            color: #546e7a;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item .room-info.id::before {
+            content: '🔢';
+            font-size: 13px;
+        }
+        #chat-room.content .chat-room-container .room-list-panel .room-item .room-info.users::before {
+            content: '👥';
+            font-size: 13px;
+        }
+        #chat-room.content .chat-room-container .chat-panel {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #chat-room.content .chat-room-container .chat-panel .chat-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 15px;
-            margin: 5px 0;
-            border-radius: 8px;
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            animation: fadeInUp 0.3s ease;
+            margin-bottom: 10px;
         }
-        .chat-room .room-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.2);
+        #chat-room.content .chat-room-container .chat-panel .chat-header h4 {
+            color: #0288d1;
+            font-size: 20px;
+            font-weight: 600;
         }
-        .chat-room .room-item span {
-            font-size: 15px;
-            color: #2d3748;
-        }
-        .chat-room .room-item button {
-            padding: 8px 16px;
-            background: linear-gradient(90deg, #0288d1, #0277bd);
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .chat-room .room-item button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
-        }
-        .chat-room .room-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .chat-room .room-controls input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #b3e5fc;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .chat-room .room-controls input:focus {
-            border-color: #0288d1;
-            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
-            outline: none;
-        }
-        .chat-room .room-controls button {
-            padding: 12px 20px;
-            background: linear-gradient(90deg, #0288d1, #0277bd);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .chat-room .room-controls button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
-        }
-        .chat-room .room-controls button.leave {
+        #chat-room.content .chat-room-container .chat-panel .chat-header button {
+            padding: 10px 20px;
             background: linear-gradient(90deg, #ef5350, #e53935);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .chat-room .room-controls button.leave:hover {
+        #chat-room.content .chat-room-container .chat-panel .chat-header button:hover {
+            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(239, 83, 80, 0.3);
         }
-        .chat-room .chat-area {
+        #chat-room.content .chat-room-container .chat-panel .chat-area {
+            flex: 1;
             background: #f9fbfc;
             border-radius: 12px;
             padding: 20px;
@@ -333,14 +372,16 @@
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
-        .chat-room .chat-area::-webkit-scrollbar {
+        #chat-room.content .chat-room-container .chat-panel .chat-area::-webkit-scrollbar {
             width: 8px;
         }
-        .chat-room .chat-area::-webkit-scrollbar-thumb {
+        #chat-room.content .chat-room-container .chat-panel .chat-area::-webkit-scrollbar-thumb {
             background: #81d4fa;
             border-radius: 4px;
         }
-        .chat-room .message {
+        #chat-room.content .chat-room-container .chat-panel .message {
+            display: flex;
+            align-items: flex-start;
             margin: 10px 0;
             padding: 10px 15px;
             border-radius: 8px;
@@ -349,7 +390,7 @@
             max-width: 80%;
             word-wrap: break-word;
         }
-        .chat-room .message.system {
+        #chat-room.content .chat-room-container .chat-panel .message.system {
             background: #eceff1;
             color: #546e7a;
             font-style: italic;
@@ -358,36 +399,40 @@
             text-align: center;
             max-width: 60%;
         }
-        .chat-room .message.user {
+        #chat-room.content .chat-room-container .chat-panel .message.user {
             background: #e3f2fd;
             color: #2d3748;
             margin-left: 10px;
         }
-        .chat-room .message.error {
-            background: #ffebee;
-            color: #d32f2f;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
+        #chat-room.content .chat-room-container .chat-panel .message img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+            cursor: pointer;
+            position: relative;
         }
-        .chat-room .message-timestamp {
-            font-size: 12px;
-            color: #78909c;
-            margin-bottom: 5px;
+        #chat-room.content .chat-room-container .chat-panel .message .message-content {
+            flex: 1;
         }
-        .chat-room .message-content {
-            line-height: 1.4;
-        }
-        .chat-room .message-sender {
+        #chat-room.content .chat-room-container .chat-panel .message .message-sender {
             font-weight: 600;
             color: #0288d1;
+            margin-bottom: 5px;
         }
-        .chat-room .message-input-group {
+        #chat-room.content .chat-room-container .chat-panel .message .message-text {
+            line-height: 1.4;
+        }
+        #chat-room.content .chat-room-container .chat-panel .message .message-timestamp {
+            font-size: 12px;
+            color: #78909c;
+            margin-top: 5px;
+        }
+        #chat-room.content .chat-room-container .chat-panel .message-input-group {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
         }
-        .chat-room .message-input-group input {
+        #chat-room.content .chat-room-container .chat-panel .message-input-group input {
             flex: 1;
             padding: 12px;
             border: 1px solid #b3e5fc;
@@ -395,12 +440,12 @@
             font-size: 15px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .chat-room .message-input-group input:focus {
+        #chat-room.content .chat-room-container .chat-panel .message-input-group input:focus {
             border-color: #0288d1;
             box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
             outline: none;
         }
-        .chat-room .message-input-group button {
+        #chat-room.content .chat-room-container .chat-panel .message-input-group button {
             padding: 12px 20px;
             background: linear-gradient(90deg, #0288d1, #0277bd);
             color: #ffffff;
@@ -408,82 +453,146 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 15px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
         }
-        .chat-room .message-input-group button:hover {
+        #chat-room.content .chat-room-container .chat-panel .message-input-group button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
         }
-        .chat-room .online-users {
+        #chat-room.content .room-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
             margin-top: 20px;
-            background: #ffffff;
-            border-radius: 12px;
             padding: 15px;
+            background: #f9fbfc;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        #chat-room.content .room-controls input {
+            flex: 1;
+            padding: 12px 16px;
             border: 1px solid #b3e5fc;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .chat-room .online-users h4 {
-            color: #0288d1;
-            font-size: 18px;
-            margin-bottom: 10px;
-            animation: slideInLeft 0.5s ease;
-        }
-        .chat-room .online-users ul {
-            list-style: none;
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .chat-room .online-users ul::-webkit-scrollbar {
-            width: 6px;
-        }
-        .chat-room .online-users ul::-webkit-scrollbar-thumb {
-            background: #81d4fa;
-            border-radius: 3px;
-        }
-        .chat-room .online-users li {
-            padding: 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 15px;
-            color: #2d3748;
-            transition: background 0.2s ease, transform 0.2s ease;
-            animation: fadeInUp 0.3s ease;
+            background: #ffffff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
         }
-        .chat-room .online-users li:hover {
-            background: #e1f5fe;
-            transform: translateX(5px);
-        }
-        /* 其他页面样式（保持不变） */
-        .new-friends input {
-            width: 60%;
-            padding: 10px;
-            margin: 15px 0;
-            border: 1px solid #b3e5fc;
-            border-radius: 6px;
-            font-size: 15px;
-        }
-        .new-friends input:focus {
+        #chat-room.content .room-controls input:focus {
             border-color: #0288d1;
+            box-shadow: 0 0 10px rgba(2, 136, 209, 0.2);
+            outline: none;
+            transform: scale(1.02);
+        }
+        #chat-room.content .room-controls button {
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+        }
+        #chat-room.content .room-controls button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.3);
+            background: linear-gradient(90deg, #039be5, #0288d1);
+        }
+        .user-popup {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid #81d4fa;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1002;
+            animation: fadeIn 0.3s ease;
+        }
+        .user-popup button {
+            padding: 8px 16px;
+            background: #0288d1;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .user-popup button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+        }
+        /* 新朋友页面样式 */
+        #new-friends.content {
+            display: block;
+            padding: 20px;
+        }
+        #new-friends.content h3 {
+            margin-bottom: 15px;
+        }
+        #new-friends.content .search-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        #new-friends.content .search-group input {
+            flex: 1;
+            max-width: 60%;
+            padding: 12px;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #new-friends.content .search-group input:focus {
+            border-color: #0288d1;
+            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
             outline: none;
         }
-        .new-friends .search-results .result-item {
+        #new-friends.content .search-group button {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        #new-friends.content .search-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+        }
+        #new-friends.content .search-results {
+            margin-top: 15px;
+        }
+        #new-friends.content .search-results .result-item {
             display: flex;
             align-items: center;
             padding: 12px;
             border-bottom: 1px solid #e0f7fa;
             transition: background 0.2s ease;
             animation: fadeIn 0.3s ease;
+            border-radius: 8px;
         }
-        .new-friends .search-results .result-item:hover {
+        #new-friends.content .search-results .result-item:hover {
             background: #e1f5fe;
         }
-        .new-friends .search-results .result-item img {
+        #new-friends.content .search-results .result-item img {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             margin-right: 12px;
         }
-        .new-friends .search-results .result-item button {
+        #new-friends.content .search-results .result-item span {
+            flex: 1;
+        }
+        #new-friends.content .search-results .result-item button {
             padding: 8px 16px;
             background: #0288d1;
             color: #ffffff;
@@ -493,19 +602,37 @@
             cursor: pointer;
             transition: background 0.3s ease, transform 0.2s ease;
         }
-        .new-friends .search-results .result-item button:hover {
+        #new-friends.content .search-results .result-item button:hover {
             background: #0277bd;
             transform: translateY(-1px);
         }
-        .my-friends {
-            display: flex;
+        /* 我的好友页面样式 */
+        #my-friends.content {
+            display: block;
+            padding: 20px;
         }
-        .my-friends .friend-list {
+        #my-friends.content .my-friends {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+        #my-friends.content .my-friends .friend-list {
             width: 35%;
             border-right: 1px solid #b3e5fc;
             padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #f9fbfc;
+            border-radius: 8px;
         }
-        .my-friends .friend-list .friend-item {
+        #my-friends.content .my-friends .friend-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #my-friends.content .my-friends .friend-list::-webkit-scrollbar-thumb {
+            background: #81d4fa;
+            border-radius: 4px;
+        }
+        #my-friends.content .my-friends .friend-list .friend-item {
             display: flex;
             align-items: center;
             padding: 12px;
@@ -514,61 +641,102 @@
             border-radius: 6px;
             transition: background 0.2s ease, transform 0.2s ease;
         }
-        .my-friends .friend-list .friend-item:hover {
+        #my-friends.content .my-friends .friend-list .friend-item:hover {
             background: #e1f5fe;
             transform: translateX(3px);
         }
-        .my-friends .friend-list .friend-item.active {
+        #my-friends.content .my-friends .friend-list .friend-item.active {
             background: #b3e5fc;
         }
-        .my-friends .friend-list .friend-item img {
+        #my-friends.content .my-friends .friend-list .friend-item img {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             margin-right: 12px;
+            transition: filter 0.3s ease;
         }
-        .my-friends .chat-panel {
+        #my-friends.content .my-friends .friend-list .friend-item.offline img {
+            filter: grayscale(100%);
+        }
+        #my-friends.content .my-friends .chat-panel {
             flex: 1;
             padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        .my-friends .chat-panel .chat-area {
+        #my-friends.content .my-friends .chat-panel .chat-area {
+            flex: 1;
             height: 320px;
             border: 1px solid #b3e5fc;
             border-radius: 8px;
             overflow-y: auto;
             padding: 15px;
-            margin-bottom: 15px;
             background: #f9fbfc;
         }
-        .my-friends .chat-panel input, .my-friends .chat-panel button {
-            padding: 10px;
-            margin: 8px;
-            border: 1px solid #b3e5fc;
-            border-radius: 6px;
-            font-size: 15px;
+        #my-friends.content .my-friends .chat-panel .chat-area::-webkit-scrollbar {
+            width: 8px;
         }
-        .my-friends .chat-panel input:focus {
+        #my-friends.content .my-friends .chat-panel .chat-area::-webkit-scrollbar-thumb {
+            background: #81d4fa;
+            border-radius: 4px;
+        }
+        #my-friends.content .my-friends .chat-panel .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #e3f2fd;
+            animation: messageSlideIn 0.3s ease;
+        }
+        #my-friends.content .my-friends .chat-panel .message.system {
+            background: #eceff1;
+            color: #546e7a;
+            font-style: italic;
+            text-align: center;
+        }
+        #my-friends.content .my-friends .chat-panel .message-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        #my-friends.content .my-friends .chat-panel .message-input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #b3e5fc;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #my-friends.content .my-friends .chat-panel .message-input-group input:focus {
             border-color: #0288d1;
+            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
             outline: none;
         }
-        .my-friends .chat-panel button {
-            background: #0288d1;
+        #my-friends.content .my-friends .chat-panel .message-input-group button {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
             color: #ffffff;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
+            font-size: 15px;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
         }
-        .my-friends .chat-panel button:hover {
-            background: #0277bd;
-            transform: translateY(-1px);
+        #my-friends.content .my-friends .chat-panel .message-input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
         }
-        .friend-news .news-item {
+        /* 好友动态页面样式 */
+        #friend-news.content {
+            display: block;
+            padding: 20px;
+        }
+        #friend-news.content .news-item {
             padding: 12px;
             border-bottom: 1px solid #e0f7fa;
             border-radius: 6px;
             transition: background 0.2s ease;
         }
-        .friend-news .news-item:hover {
+        #friend-news.content .news-item:hover {
             background: #e1f5fe;
         }
         /* 动画 */
@@ -650,9 +818,7 @@
                 <button class="friend-request-btn" onclick="toggleFriendRequestPopup()">好友申请</button>
             </div>
         </div>
-        <div class="friend-request-popup hidden" id="friend-request-popup">
-            <!-- 动态生成好友申请 -->
-        </div>
+        <div class="friend-request-popup hidden" id="friend-request-popup"></div>
         <div class="main-content">
             <div class="sidebar">
                 <ul>
@@ -672,44 +838,47 @@
                 <!-- 聊天室 -->
                 <div id="chat-room" class="content hidden">
                     <h3>聊天室</h3>
-                    <div class="room-list" id="room-list">
-                        <!-- 动态生成聊天室列表 -->
+                    <div class="chat-room-container">
+                        <div class="room-list-panel" id="room-list-panel">
+                            <div id="room-list"></div>
+                        </div>
+                        <div class="chat-panel hidden" id="chat-panel">
+                            <div class="chat-header">
+                                <h4 id="chat-room-title"></h4>
+                                <button onclick="leaveRoom()">退出</button>
+                            </div>
+                            <div class="chat-area" id="chat-area"></div>
+                            <div class="message-input-group">
+                                <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendRoomMessage()">
+                                <button onclick="sendRoomMessage()">发送</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="room-controls">
                         <input id="create-room-name" type="text" placeholder="输入新房间名称">
                         <button onclick="createRoom()">创建房间</button>
-                        <button class="leave" onclick="leaveRoom()">离开房间</button>
-                    </div>
-                    <div class="chat-area" id="chat-area"></div>
-                    <div class="message-input-group">
-                        <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendRoomMessage()">
-                        <button onclick="sendRoomMessage()">发送</button>
-                    </div>
-                    <div class="online-users">
-                        <h4>在线用户</h4>
-                        <ul id="online-user-list"></ul>
                     </div>
                 </div>
                 <!-- 新朋友 -->
                 <div id="new-friends" class="content hidden">
                     <h3>新朋友</h3>
-                    <input id="search-user" type="text" placeholder="搜索用户..." onkeypress="if(event.key === 'Enter') searchUser()">
-                    <button onclick="searchUser()">搜索</button>
-                    <div class="search-results" id="search-results">
-                        <!-- 动态生成搜索结果 -->
+                    <div class="search-group">
+                        <input id="search-user" type="text" placeholder="搜索用户..." onkeypress="if(event.key === 'Enter') searchUser()">
+                        <button onclick="searchUser()">搜索</button>
                     </div>
+                    <div class="search-results" id="search-results"></div>
                 </div>
                 <!-- 我的好友 -->
                 <div id="my-friends" class="content hidden">
                     <h3>我的好友</h3>
                     <div class="my-friends">
-                        <div class="friend-list" id="friend-list">
-                            <!-- 动态生成好友列表 -->
-                        </div>
+                        <div class="friend-list" id="friend-list"></div>
                         <div class="chat-panel">
                             <div class="chat-area" id="friend-chat-area"></div>
-                            <input id="friend-message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendFriendMessage()">
-                            <button onclick="sendFriendMessage()">发送</button>
+                            <div class="message-input-group">
+                                <input id="friend-message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendFriendMessage()">
+                                <button onclick="sendFriendMessage()">发送</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -721,9 +890,13 @@
 <script>
     let socket = null;
     let username = '';
-    let currentRoom = '';
-    let currentFriend = '';
-    let hasJoinedRoom = false;
+    let chatRoomState = {
+        currentRoom: '',
+        hasJoinedRoom: false
+    };
+    let myFriendsState = {
+        currentFriend: ''
+    };
 
     function showPage(pageId) {
         document.querySelectorAll('.auth-page, #main-page').forEach(page => {
@@ -734,7 +907,7 @@
         targetPage.classList.remove('hidden');
         setTimeout(() => {
             targetPage.style.opacity = '1';
-        }, 10);
+            SMARTTAB            }, 10);
         if (pageId === 'login-page') {
             document.getElementById('login-error').textContent = '';
         } else if (pageId === 'register-page') {
@@ -746,6 +919,8 @@
         document.querySelectorAll('.content').forEach(content => {
             content.classList.add('hidden');
             content.style.opacity = '0';
+            content.style.height = 'auto';
+            content.style.minHeight = '0';
         });
         const targetContent = document.getElementById(funcId);
         targetContent.classList.remove('hidden');
@@ -756,6 +931,10 @@
         document.querySelector(`.sidebar li[onclick="switchFunction('${funcId}')"]`).classList.add('active');
         if (funcId === 'chat-room' && socket) {
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
+            if (!chatRoomState.hasJoinedRoom) {
+                document.getElementById('room-list-panel').classList.remove('hidden');
+                document.getElementById('chat-panel').classList.add('hidden');
+            }
         } else if (funcId === 'my-friends' && socket) {
             socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
         } else if (funcId === 'new-friends') {
@@ -835,6 +1014,7 @@
         if (msg.type === 'SUCCESS' && msg.content.includes('Login successful')) {
             showPage('main-page');
             switchFunction('friend-news');
+            socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
             socket.send(JSON.stringify({ type: 'APPLY_LIST' }));
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Register successful')) {
             document.getElementById('register-error').textContent = '注册成功，请登录';
@@ -848,14 +1028,19 @@
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
             addRoomMessage('系统', '房间创建成功', true);
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Joined room')) {
-            currentRoom = msg.content.split(':')[1].trim();
-            hasJoinedRoom = true;
-            addRoomMessage('系统', `已加入房间 ${currentRoom}`, true);
+            chatRoomState.currentRoom = msg.content.split(':')[1].trim();
+            chatRoomState.hasJoinedRoom = true;
+            document.getElementById('chat-room-title').textContent = `聊天室: ${chatRoomState.currentRoom}`;
+            document.getElementById('room-list-panel').classList.add('hidden');
+            document.getElementById('chat-panel').classList.remove('hidden');
+            addRoomMessage('系统', `已加入房间 ${chatRoomState.currentRoom}`, true);
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Left room')) {
-            currentRoom = '';
-            hasJoinedRoom = false;
+            chatRoomState.currentRoom = '';
+            chatRoomState.hasJoinedRoom = false;
             document.getElementById('chat-area').innerHTML = '';
-            document.getElementById('online-user-list').innerHTML = '';
+            document.getElementById('room-list-panel').classList.remove('hidden');
+            document.getElementById('chat-panel').classList.add('hidden');
+            socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
             addRoomMessage('系统', '已离开房间', true);
         } else if (msg.type === 'ERROR') {
             if (msg.content.includes('Invalid username or password')) {
@@ -871,9 +1056,7 @@
         } else if (msg.type === 'ROOM_LIST') {
             updateRoomList(JSON.parse(msg.content));
         } else if (msg.type === 'ROOM_MSG') {
-            addRoomMessage(msg.sender, msg.content, false);
-        } else if (msg.type === 'USER_LIST') {
-            updateOnlineUserList(JSON.parse(msg.content));
+            addRoomMessage(msg.sender, msg.content, false, false, msg.userId, msg.image);
         } else if (msg.type === 'SEARCH_FRIEND') {
             const users = JSON.parse(msg.content);
             if (document.getElementById('new-friends').classList.contains('hidden')) {
@@ -881,8 +1064,10 @@
             } else {
                 updateSearchResults(users);
             }
+        } else if (msg.type === 'FRIEND_LIST') {
+            updateFriendList(JSON.parse(msg.content));
         } else if (msg.type === 'FRIEND_MSG') {
-            addFriendMessage(msg.sender, msg.content, msg.sender === currentFriend);
+            addFriendMessage(msg.sender, msg.content, msg.sender === myFriendsState.currentFriend);
         } else if (msg.type === 'APPLY_LIST') {
             updateFriendRequestList(JSON.parse(msg.content));
         }
@@ -894,20 +1079,20 @@
         socket.send(JSON.stringify({ type: 'CREAT_ROOM', content: roomName }));
     }
 
-    function joinRoom(roomId) {
+    function joinRoom(roomId, roomName) {
         if (!roomId || !socket) return;
         socket.send(JSON.stringify({ type: 'JOIN_ROOM', receiver: roomId }));
     }
 
     function leaveRoom() {
-        if (!currentRoom || !socket) return;
-        socket.send(JSON.stringify({ type: 'LEAVE_ROOM', receiver: currentRoom }));
+        if (!chatRoomState.currentRoom || !socket) return;
+        socket.send(JSON.stringify({ type: 'LEAVE_ROOM', receiver: chatRoomState.currentRoom }));
     }
 
     function sendRoomMessage() {
         const content = document.getElementById('message-input').value.trim();
-        if (!content || !currentRoom || !socket) return;
-        socket.send(JSON.stringify({ type: 'ROOM_MSG', sender: username, receiver: currentRoom, content }));
+        if (!content || !chatRoomState.currentRoom || !socket) return;
+        socket.send(JSON.stringify({ type: 'ROOM_MSG', sender: username, receiver: chatRoomState.currentRoom, content }));
         document.getElementById('message-input').value = '';
     }
 
@@ -918,25 +1103,57 @@
             roomList.innerHTML = '<p>暂无聊天室</p>';
             return;
         }
-        rooms.forEach(room => {
+        rooms.forEach((room, index) => {
             const div = document.createElement('div');
             div.className = 'room-item';
+            div.onclick = () => joinRoom(room.id, room.name);
+            div.style.animationDelay = `${index * 0.1}s`;
             div.innerHTML = `
-                <span>${room.name} (ID: ${room.id}, 在线: ${room.users})</span>
-                <button onclick="joinRoom('${room.id}')">加入</button>
+                <div class="room-name">${room.name}</div>
+                <div class="room-info id">ID: ${room.id}</div>
+                <div class="room-info users">在线: ${room.users}</div>
             `;
             roomList.appendChild(div);
         });
     }
 
-    function updateOnlineUserList(users) {
-        const userList = document.getElementById('online-user-list');
-        userList.innerHTML = '';
-        users.forEach(user => {
-            const li = document.createElement('li');
-            li.textContent = user;
-            userList.appendChild(li);
-        });
+    function addRoomMessage(sender, content, isSystem, isError = false, userId = '', image = '') {
+        if (chatRoomState.hasJoinedRoom && !document.getElementById('chat-room').classList.contains('hidden')) {
+            const chatArea = document.getElementById('chat-area');
+            const div = document.createElement('div');
+            div.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
+            const timestamp = new Date().toLocaleTimeString();
+            const imgSrc = image ? `./images/${image}` : './images/yoimiya1.jpg';
+            div.innerHTML = `
+                ${!isSystem ? `<img src="${imgSrc}" alt="头像" onclick="showUserPopup('${userId}', event)">` : ''}
+                <div class="message-content">
+                    <div class="message-sender">${sender}</div>
+                    <div class="message-text">${content}</div>
+                    <div class="message-timestamp">${timestamp}</div>
+                </div>
+            `;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+    }
+
+    function showUserPopup(userId, event) {
+        const existingPopup = document.querySelector('.user-popup');
+        if (existingPopup) existingPopup.remove();
+        if (userId === username) return;
+        const popup = document.createElement('div');
+        popup.className = 'user-popup';
+        popup.innerHTML = `<button onclick="addFriend('${userId}')">申请加好友</button>`;
+        document.body.appendChild(popup);
+        const img = event.target;
+        const rect = img.getBoundingClientRect();
+        popup.style.left = `${rect.right + 10}px`;
+        popup.style.top = `${rect.top}px`;
+        document.addEventListener('click', (e) => {
+            if (!popup.contains(e.target) && e.target !== img) {
+                popup.remove();
+            }
+        }, { once: true });
     }
 
     function searchUser() {
@@ -958,7 +1175,7 @@
         users.forEach(user => {
             const div = document.createElement('div');
             const src = './images/' + (user.image ? user.image : 'yoimiya1.jpg');
-            div.className = 'result-item';
+            div.className = 'result-item' + (user.online ? '' : ' offline');
             div.innerHTML = `
                 <img src="${src}" alt="头像">
                 <span>${user.name}</span>
@@ -979,12 +1196,17 @@
     function updateFriendList(friends) {
         const friendList = document.getElementById('friend-list');
         friendList.innerHTML = '';
+        if (friends.length === 0) {
+            friendList.innerHTML = '<p>暂无好友，试试去“新朋友”页面添加吧！</p>';
+            return;
+        }
         friends.forEach(friend => {
             const div = document.createElement('div');
-            div.className = `friend-item ${currentFriend === friend.id ? 'active' : ''}`;
+            div.className = `friend-item ${myFriendsState.currentFriend === friend.id ? 'active' : ''} ${friend.online ? '' : 'offline'}`;
             div.onclick = () => selectFriend(friend.id, friend.name);
+            const src = './images/' + (friend.image ? friend.image : 'yoimiya1.jpg');
             div.innerHTML = `
-                <img src="${friend.image || './images/yoimiya1.jpg'}" alt="头像">
+                <img src="${src}" alt="头像">
                 <span>${friend.name}</span>
             `;
             friendList.appendChild(div);
@@ -992,7 +1214,7 @@
     }
 
     function selectFriend(friendId, friendName) {
-        currentFriend = friendId;
+        myFriendsState.currentFriend = friendId;
         document.getElementById('friend-chat-area').innerHTML = '';
         socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
         addFriendMessage('系统', `开始与 ${friendName} 聊天`, true);
@@ -1000,20 +1222,22 @@
 
     function sendFriendMessage() {
         const content = document.getElementById('friend-message-input').value.trim();
-        if (!content || !currentFriend || !socket) return;
-        socket.send(JSON.stringify({ type: 'FRIEND_MSG', sender: username, receiver: currentFriend, content }));
+        if (!content || !myFriendsState.currentFriend || !socket) return;
+        socket.send(JSON.stringify({ type: 'FRIEND_MSG', sender: username, receiver: myFriendsState.currentFriend, content }));
         document.getElementById('friend-message-input').value = '';
         addFriendMessage(username, content, true);
     }
 
     function addFriendMessage(sender, content, isCurrentFriend) {
-        if (!isCurrentFriend && sender !== currentFriend) return;
-        const chatArea = document.getElementById('friend-chat-area');
-        const div = document.createElement('div');
-        div.className = `message ${sender === '系统' ? 'system' : 'user'}`;
-        div.textContent = `[${new Date().toLocaleTimeString()}] ${sender}: ${content}`;
-        chatArea.appendChild(div);
-        chatArea.scrollTop = chatArea.scrollHeight;
+        if (!isCurrentFriend && sender !== myFriendsState.currentFriend) return;
+        if (!document.getElementById('my-friends').classList.contains('hidden')) {
+            const chatArea = document.getElementById('friend-chat-area');
+            const div = document.createElement('div');
+            div.className = `message ${sender === '系统' ? 'system' : 'user'}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${sender}: ${content}`;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
     }
 
     function toggleFriendRequestPopup() {
@@ -1030,8 +1254,9 @@
         requests.forEach(req => {
             const div = document.createElement('div');
             div.className = 'request-item';
+            const src = './images/' + (req.image ? req.image : 'yoimiya1.jpg');
             div.innerHTML = `
-                <img src="${req.image || './images/yoimiya1.jpg'}" alt="头像">
+                <img src="${src}" alt="头像">
                 <span>${req.name}</span>
                 <button class="accept" onclick="acceptFriend('${req.id}')">同意</button>
                 <button class="reject" onclick="rejectFriend('${req.id}')">拒绝</button>
@@ -1052,31 +1277,12 @@
         toggleFriendRequestPopup();
     }
 
-    function addRoomMessage(sender, content, isSystem, isError = false) {
-        const chatArea = document.getElementById('chat-area');
-        const div = document.createElement('div');
-        div.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
-        div.innerHTML = `
-            <div class="message-timestamp">[${new Date().toLocaleTimeString()}]</div>
-            <div class="message-content">
-                <span class="message-sender">${sender}</span>: ${content}
-            </div>
-        `;
-        chatArea.appendChild(div);
-        chatArea.scrollTop = chatArea.scrollHeight;
-    }
-
+    // 初始化模拟数据
     updateRoomList([
         { id: '1', name: '公共聊天室1', users: 5 },
-        { id: '2', name: '公共聊天室2', users: 3 }
-    ]);
-    updateFriendList([
-        { id: 'user1', name: '张三' },
-        { id: 'user2', name: '李四' }
-    ]);
-    updateFriendRequestList([
-        { id: 'user5', name: '周七' },
-        { id: 'user6', name: '吴八' }
+        { id: '2', name: '公共聊天室2', users: 3 },
+        { id: '3', name: '休闲聊天室', users: 8 },
+        { id: '4', name: '技术讨论', users: 4 }
     ]);
 </script>
 </body>

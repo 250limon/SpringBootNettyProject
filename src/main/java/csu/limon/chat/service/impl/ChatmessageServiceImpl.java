@@ -6,6 +6,8 @@ import csu.limon.chat.service.ChatmessageService;
 import csu.limon.chat.mapper.ChatmessageMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
 * @author 18632
 * @description 针对表【chatmessage】的数据库操作Service实现
@@ -15,6 +17,15 @@ import org.springframework.stereotype.Service;
 public class ChatmessageServiceImpl extends ServiceImpl<ChatmessageMapper, Chatmessage>
     implements ChatmessageService{
 
+    @Override
+    public List<Chatmessage> getChatMessage(String user, String friend) {
+        return null;
+    }
+
+    @Override
+    public void insertChatMessage(Chatmessage chatmessage) {
+
+    }
 }
 
 

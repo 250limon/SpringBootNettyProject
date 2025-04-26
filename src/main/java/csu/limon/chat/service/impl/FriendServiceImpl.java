@@ -1,5 +1,6 @@
 package csu.limon.chat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import csu.limon.chat.core.handler.AuthHandler;
@@ -82,6 +83,20 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Override
     public void friendList(ChannelHandlerContext ctx, Message msg) throws Exception {
+           String sender = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+           List<Friend> friends = friendMapper.selectList(new LambdaQueryWrapper<Friend>()
+                   .eq(Friend::getUserId, sender));
+
+           List<User> userList = new ArrayList<>();
+           for (Friend friend : friends) {
+               User user = userMapper.selectById(friend.getFriendId());
+               userList.add(user);
+           }
+           // 将用户列表转为JSON字符串发送
+           MessageSender.response(ctx,
+                   new Message(MessageType.FRIEND_LIST, null, null, JSONUtil.toJsonString(userList)));
+
+
 
     }
 

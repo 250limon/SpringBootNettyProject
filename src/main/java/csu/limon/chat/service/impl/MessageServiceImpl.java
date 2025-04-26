@@ -51,8 +51,9 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
+
     @Override
-    public void userListHandler(ChannelHandlerContext ctx, Message msg) throws Exception {
+    public void getChatHistory(ChannelHandlerContext ctx, Message msg) throws Exception {
 
     }
 }

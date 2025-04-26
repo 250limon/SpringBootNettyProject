@@ -9,6 +9,8 @@ import csu.limon.chat.mapper.ApplyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author luoru
  * @description 针对表【apply】的数据库操作Service实现
@@ -41,6 +43,16 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyMapper, Apply> implements
         if(result <= 0) {
             throw new RuntimeException("好友申请插入失败");
         }
+    }
+
+    @Override
+    public void deleteApply(Apply apply) {
+
+    }
+
+    @Override
+    public List<Apply> getApplyByUserId(String userId) {
+        return null;
     }
 
 }
