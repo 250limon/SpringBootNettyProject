@@ -3,14 +3,20 @@ package csu.limon.chat.core.handler;
 import csu.limon.chat.pojo.Message;
 import csu.limon.chat.pojo.MessageType;
 import csu.limon.chat.util.JSONUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
 @ChannelHandler.Sharable
 @Component
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) throws Exception {
 

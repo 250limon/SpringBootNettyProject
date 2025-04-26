@@ -2,6 +2,7 @@ package csu.limon.chat.core.server;
 
 import csu.limon.chat.core.codec.MessageEncoder;
 import csu.limon.chat.core.handler.*;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -11,12 +12,12 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
-
-    private final AuthHandler authHandler;
+     private final AuthHandler authHandler;
     private final WebSocketFrameHandler webSocketFrameHandler;
     private final MessageEncoder messageEncoder;
     private final HeartbeatHandler heartbeatHandler;
@@ -25,6 +26,8 @@ public class ChatServerInitializer extends ChannelInitializer<SocketChannel> {
     private final LiveHandler liveHandler;
     private final FriendHandler friendHandler;
     private final HttpRegisterHandler httpRegisterHandler;
+
+
 
 
     @Autowired

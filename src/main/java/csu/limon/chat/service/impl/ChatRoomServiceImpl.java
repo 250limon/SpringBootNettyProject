@@ -33,7 +33,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
        值：String（房间 ID）。
        示例：userRooms.get(channel1) 返回 "1"，表示 channel1 在房间 1
      */
-    private final ConcurrentHashMap<Channel, String> userRooms = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Channel, String> userRooms = new ConcurrentHashMap<>();
     private int createdRoomCount = 0; // 用于跟踪创建的房间数量
     private final ConcurrentHashMap<String,String> roomIdToName=new ConcurrentHashMap<>();
 
@@ -195,9 +195,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // 创建响应消息
         Message response = new Message();
         response.setReceiver(roomId);
+        System.out.println("房间" + roomName + "创建成功，房间号为：" + roomId);
         String userid= (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
         handleJoinRoom(ctx, response, userid);
-        System.out.println( "由用户" + userid +"创建房间：" + roomName );
+
     }
     @Override
     public void roomList(ChannelHandlerContext ctx, Message msg) throws Exception {
@@ -210,8 +211,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         response.setContent(String.join(",", roomIds)); // 将房间ID用逗号分隔成一个字符串
         // 将响应发送回客户端
         ctx.writeAndFlush(response);
-        // 打印日志
-        System.out.println("由用户查询的房间列表: "  + ", 房间有: " + roomIds);
+
     }
     //模块方法
     public Set<String> getUsersInRoom(String roomId) {
@@ -230,4 +230,38 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private void printAllRoomsState() {
         System.out.println("Current state of all rooms: " + rooms);
     }
+
+    class RoomListResponse{
+       private String roomId;
+       private String roomName;
+       private int userNumber;
+
+        public String getRoomId() {
+            return roomId;
+        }
+
+        public void setRoomId(String roomId) {
+            this.roomId = roomId;
+        }
+
+        public String getRoomName() {
+            return roomName;
+        }
+
+        public void setRoomName(String roomName) {
+            this.roomName = roomName;
+        }
+
+        public int getUserNumber() {
+            return userNumber;
+        }
+
+        public void setUserNumber(int userNumber) {
+            this.userNumber = userNumber;
+        }
+    }
+
+
+
+
 }

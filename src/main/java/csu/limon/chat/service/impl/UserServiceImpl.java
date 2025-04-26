@@ -10,14 +10,19 @@ import csu.limon.chat.pojo.User;
 import csu.limon.chat.service.UserService;
 import csu.limon.chat.util.JSONUtil;
 import csu.limon.chat.util.MessageSender;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.AttributeKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+    private Map<String, Channel> channels = new java.util.concurrent.ConcurrentHashMap<>();
+
 
     @Autowired
     private  UserMapper userMapper;
@@ -43,6 +48,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public String getUserNameById(String userId) {
         return null;
+    }
+
+    @Override
+    public Map<String,Channel> getChannelUserMap() {
+        return channels;
     }
 
     @Override
@@ -95,6 +105,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     try {
                         System.out.println("Login successful");
                         ctx.channel().attr(AttributeKey.valueOf("user")).set(loginRequest.getUsername());
+                        channels.put(loginRequest.getUsername(),ctx.channel());
                         MessageSender.response(ctx,new Message(MessageType.SUCCESS,null,null,"Login successful"));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
