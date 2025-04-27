@@ -10,7 +10,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.AttributeKey;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -203,12 +204,29 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     public void roomList(ChannelHandlerContext ctx, Message msg) throws Exception {
         // 获取所有房间ID
-        Set<String> roomIds = new HashSet<>(roomIdToName.values());
-        roomIds.addAll(userRooms.values());
+        List<String> roomIds = new ArrayList<>(roomIdToName.keySet());
         // 创建响应消息
         Message response = new Message();
-        response.setType(MessageType.SUCCESS);
-        response.setContent(String.join(",", roomIds)); // 将房间ID用逗号分隔成一个字符串
+        response.setType(MessageType.ROOM_LIST);
+        //按房间数量新建一个RoomListResponse数组
+        RoomListResponse[] roomListResponses = new RoomListResponse[roomIds.size()];
+
+        for (int i = 0; i < roomIds.size(); i++) {
+            String roomId = roomIds.get(i);
+            // 创建一个RoomListResponse对象
+            RoomListResponse roomListResponse = new RoomListResponse();
+            roomListResponse.setRoomId(roomId);
+            // 获取房间名
+            String roomName = roomIdToName.get(roomId);
+            roomListResponse.setRoomName(roomName);
+            // 获取房间人数
+            int userNumber = getUsersInRoom(roomId).size();
+            roomListResponse.setUserNumber(userNumber);
+            // 将RoomListResponse对象添加到数组中
+            roomListResponses[i] = roomListResponse;
+            System.out.println("房间" + roomName + "的房间号为：" + roomId + "，人数为：" + userNumber);
+        }
+        response.setContent(JSONUtil.toJsonString(roomListResponses)); // 将房间ID用逗号分隔成一个字符串
         // 将响应发送回客户端
         ctx.writeAndFlush(response);
 
@@ -232,9 +250,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     class RoomListResponse{
-       private String roomId;
-       private String roomName;
-       private int userNumber;
+        private String roomId;
+        private String roomName;
+        private int userNumber;
 
         public String getRoomId() {
             return roomId;
@@ -259,9 +277,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         public void setUserNumber(int userNumber) {
             this.userNumber = userNumber;
         }
+
     }
-
-
-
 
 }

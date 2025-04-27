@@ -907,7 +907,8 @@
         targetPage.classList.remove('hidden');
         setTimeout(() => {
             targetPage.style.opacity = '1';
-            SMARTTAB            }, 10);
+            // SMARTTAB
+        }, 10);
         if (pageId === 'login-page') {
             document.getElementById('login-error').textContent = '';
         } else if (pageId === 'register-page') {
@@ -1055,6 +1056,7 @@
             }
         } else if (msg.type === 'ROOM_LIST') {
             updateRoomList(JSON.parse(msg.content));
+            console.log('房间列表:', msg.content);
         } else if (msg.type === 'ROOM_MSG') {
             addRoomMessage(msg.sender, msg.content, false, false, msg.userId, msg.image);
         } else if (msg.type === 'SEARCH_FRIEND') {
@@ -1097,6 +1099,7 @@
     }
 
     function updateRoomList(rooms) {
+        console.log('更新房间列表:', rooms);
         const roomList = document.getElementById('room-list');
         roomList.innerHTML = '';
         if (rooms.length === 0) {
@@ -1106,12 +1109,12 @@
         rooms.forEach((room, index) => {
             const div = document.createElement('div');
             div.className = 'room-item';
-            div.onclick = () => joinRoom(room.id, room.name);
+            div.onclick = () => joinRoom(room.roomId, room.roomName);
             div.style.animationDelay = `${index * 0.1}s`;
             div.innerHTML = `
-                <div class="room-name">${room.name}</div>
-                <div class="room-info id">ID: ${room.id}</div>
-                <div class="room-info users">在线: ${room.users}</div>
+                <div class="room-name">${room.roomName}</div>
+                <div class="room-info id">ID: ${room.roomId}</div>
+                <div class="room-info users">在线: ${room.userNumber}</div>
             `;
             roomList.appendChild(div);
         });
@@ -1277,13 +1280,13 @@
         toggleFriendRequestPopup();
     }
 
-    // 初始化模拟数据
-    updateRoomList([
-        { id: '1', name: '公共聊天室1', users: 5 },
-        { id: '2', name: '公共聊天室2', users: 3 },
-        { id: '3', name: '休闲聊天室', users: 8 },
-        { id: '4', name: '技术讨论', users: 4 }
-    ]);
+    // // 初始化模拟数据
+    // updateRoomList([
+    //     { id: '1', name: '公共聊天室1', users: 5 },
+    //     { id: '2', name: '公共聊天室2', users: 3 },
+    //     { id: '3', name: '休闲聊天室', users: 8 },
+    //     { id: '4', name: '技术讨论', users: 4 }
+    // ]);
 </script>
 </body>
 </html>
