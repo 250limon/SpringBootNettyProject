@@ -20,7 +20,7 @@ public class Message {
     public Message(
             @JsonProperty("type") MessageType type,
             @JsonProperty("sender") String sender,
-            @JsonProperty("roomId") String receiver,
+            @JsonProperty("receiver") String receiver,
             @JsonProperty("content") String content) {
         this.type = type;
         this.sender = sender;
@@ -33,7 +33,7 @@ public class Message {
         return "Message{" +
                 "type=" + type +
                 ", sender='" + sender + '\'' +
-                ", roomId='" + receiver + '\'' +
+                ", receiver='" + receiver + '\'' +
                 ", content='" + content + '\'' +
                 '}';
     }

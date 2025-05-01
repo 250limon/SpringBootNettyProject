@@ -14,4 +14,5 @@ public interface ApplyService extends IService<Apply> {
     void insertApply(Apply apply);
     void deleteApply(Apply apply);
     List<Apply> getApplyByUserId(String userId);
+    boolean caninsertApply(String applicant,String respondent);
 }

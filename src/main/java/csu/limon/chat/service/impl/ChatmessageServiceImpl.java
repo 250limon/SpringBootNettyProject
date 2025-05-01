@@ -1,9 +1,11 @@
 package csu.limon.chat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import csu.limon.chat.pojo.Chatmessage;
 import csu.limon.chat.service.ChatmessageService;
 import csu.limon.chat.mapper.ChatmessageMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +18,24 @@ import java.util.List;
 @Service
 public class ChatmessageServiceImpl extends ServiceImpl<ChatmessageMapper, Chatmessage>
     implements ChatmessageService{
+    @Autowired
+    private ChatmessageMapper chatmessageMapper;
 
     @Override
     public List<Chatmessage> getChatMessage(String user, String friend) {
-        return null;
+
+        LambdaQueryWrapper<Chatmessage> queryWrapper = new LambdaQueryWrapper<Chatmessage>()
+        .eq(Chatmessage::getSender, user)
+        .eq(Chatmessage::getReceiver, friend).or()
+                .eq(Chatmessage::getSender, friend)
+                .eq(Chatmessage::getReceiver, user);
+        List<Chatmessage> chatmessages = chatmessageMapper.selectList(queryWrapper);
+        return chatmessages;
     }
 
     @Override
     public void insertChatMessage(Chatmessage chatmessage) {
-
+           chatmessageMapper.insert(chatmessage);
     }
 }
 

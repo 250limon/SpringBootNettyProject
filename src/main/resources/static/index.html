@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>实时群聊</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -17,46 +18,75 @@
             color: #2d3748;
             line-height: 1.6;
             overflow-x: hidden;
+            position: relative;
+        }
+        canvas#particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         .hidden {
             display: none !important;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
         /* 登录和注册页面样式 */
         .auth-page {
             max-width: 400px;
             margin: 100px auto;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
             text-align: center;
-            transform: translateY(20px);
-            animation: slideUp 0.5s ease forwards;
+            transform: translateY(30px);
+            animation: slideUp 0.6s ease forwards;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .auth-page h2 {
             color: #0288d1;
             margin-bottom: 20px;
-            font-weight: 600;
+            font-weight: 700;
+            position: relative;
+        }
+        .auth-page h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 50px;
+            height: 3px;
+            background: #0288d1;
+            transform: translateX(-50%);
+            border-radius: 2px;
         }
         .auth-page input {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
+            margin: 12px 0;
             border: 1px solid #81d4fa;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
         .auth-page input:focus {
             border-color: #0288d1;
-            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            box-shadow: 0 0 12px rgba(2, 136, 209, 0.3);
+            background: #ffffff;
+            transform: scale(1.02);
             outline: none;
         }
         .auth-page button {
@@ -64,30 +94,52 @@
             background: linear-gradient(90deg, #0288d1, #0277bd);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
         .auth-page button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
+            background: linear-gradient(90deg, #039be5, #0288d1);
+        }
+        .auth-page button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        .auth-page button:active::before {
+            width: 200px;
+            height: 200px;
         }
         .auth-page .error {
             color: #d32f2f;
             margin: 10px 0;
             font-size: 14px;
+            animation: shake 0.3s ease;
         }
         .auth-page a {
             color: #0288d1;
             text-decoration: none;
             font-size: 14px;
+            transition: color 0.3s ease;
         }
         .auth-page a:hover {
+            color: #0277bd;
             text-decoration: underline;
         }
-        /* 主页面头部 */
+        /* 头部样式 */
         .header {
             position: fixed;
             top: 0;
@@ -98,80 +150,157 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
             z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         }
         .header .site-name {
-            font-size: 28px;
+            font-size: 30px;
             color: #ffffff;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            position: relative;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .header .site-name:hover {
+            transform: scale(1.05);
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         .header .user-info img {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            margin-right: 12px;
-            border: 2px solid #ffffff;
+            border: 3px solid #ffffff;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        .header .user-info img:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+        }
+        .header .user-info #user-name {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         .header .friend-request-btn {
             background: #039be5;
             color: #ffffff;
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .header .friend-request-btn:hover {
             background: #0288d1;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.5);
         }
-        /* 好友申请悬浮框 */
+        .header .friend-request-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        .header .friend-request-btn:active::before {
+            width: 200px;
+            height: 200px;
+        }
+        /* 好友申请悬浮框样式 */
         .friend-request-popup {
             position: fixed;
-            top: 70px;
+            top: 80px;
             right: 30px;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid #81d4fa;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            max-width: 320px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+            max-width: 360px;
             z-index: 1001;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
+        .friend-request-popup h4 {
+            color: #0288d1;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0f7fa;
+            padding-bottom: 10px;
+            position: relative;
+        }
+        .friend-request-popup h4::before {
+            content: '📬';
+            margin-right: 8px;
         }
         .friend-request-popup .request-item {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 8px;
-            transition: background 0.2s ease;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: #f9fbfc;
+            animation: slideInLeft 0.3s ease;
         }
         .friend-request-popup .request-item:hover {
             background: #e1f5fe;
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .friend-request-popup .request-item img {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            margin-right: 12px;
+            margin-right: 15px;
+            border: 2px solid #81d4fa;
+            transition: transform 0.3s ease;
+        }
+        .friend-request-popup .request-item img:hover {
+            transform: rotate(360deg);
+        }
+        .friend-request-popup .request-item span {
+            flex: 1;
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 500;
         }
         .friend-request-popup .request-item button {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
-            transition: transform 0.2s ease;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .friend-request-popup .request-item button:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         .friend-request-popup .request-item .accept {
             background: #0288d1;
             color: #ffffff;
+            margin-right: 8px;
         }
         .friend-request-popup .request-item .reject {
             background: #ef5350;
@@ -184,11 +313,12 @@
             min-height: calc(100vh - 100px);
         }
         .sidebar {
-            width: 220px;
-            background: #ffffff;
+            width: 240px;
+            background: rgba(255, 255, 255, 0.95);
             padding: 20px;
             border-right: 1px solid #b3e5fc;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
         .sidebar ul {
             list-style: none;
@@ -198,29 +328,50 @@
             padding: 12px 15px;
             margin: 8px 0;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
-            transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #0288d1;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar li:hover::before,
+        .sidebar li.active::before {
+            transform: translateX(0);
         }
         .sidebar li:hover {
             background: #e1f5fe;
-            transform: translateX(5px);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .sidebar li.active {
             background: #0288d1;
             color: #ffffff;
-            transform: translateX(5px);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
         }
         .center-area {
             flex: 1;
             padding: 30px;
-            background: #ffffff;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
             margin-left: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.5s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.6s ease;
             position: relative;
             min-height: 500px;
+            backdrop-filter: blur(10px);
         }
         /* 通用内容样式 */
         .content {
@@ -229,10 +380,15 @@
         }
         .content h3 {
             color: #0288d1;
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 30px;
+            font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: 0.5px;
+            position: relative;
+        }
+        .content h3::before {
+            content: '✨';
+            margin-right: 8px;
         }
         /* 聊天室样式 */
         #chat-room.content {
@@ -240,10 +396,67 @@
             flex-direction: column;
             gap: 20px;
             padding: 20px;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.5s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.6s ease;
+            backdrop-filter: blur(10px);
+        }
+        #chat-room.content .room-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #chat-room.content .room-controls input {
+            flex: 1;
+            max-width: 60%;
+            padding: 12px;
+            border: 1px solid #b3e5fc;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        #chat-room.content .room-controls input:focus {
+            border-color: #0288d1;
+            box-shadow: 0 0 12px rgba(2, 136, 209, 0.3);
+            background: #ffffff;
+            transform: scale(1.02);
+            outline: none;
+        }
+        #chat-room.content .room-controls button {
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #0288d1, #0277bd);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        #chat-room.content .room-controls button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
+        }
+        #chat-room.content .room-controls button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        #chat-room.content .room-controls button:active::before {
+            width: 200px;
+            height: 200px;
         }
         #chat-room.content .chat-room-container {
             display: flex;
@@ -257,14 +470,15 @@
             max-height: 500px;
             overflow-y: auto;
             background: #f9fbfc;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         #chat-room.content .chat-room-container .room-list-panel::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
         #chat-room.content .chat-room-container .room-list-panel::-webkit-scrollbar-thumb {
-            background: #81d4fa;
-            border-radius: 4px;
+            background: linear-gradient(180deg, #81d4fa, #0288d1);
+            border-radius: 5px;
         }
         #chat-room.content .chat-room-container .room-list-panel #room-list {
             display: grid;
@@ -274,17 +488,18 @@
         #chat-room.content .chat-room-container .room-list-panel .room-item {
             padding: 15px;
             border-radius: 12px;
-            background: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            transition: all 0.3s ease;
             animation: fadeInUp 0.4s ease;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px);
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 20px rgba(2, 136, 209, 0.25);
+            transform: translateY(-10px);
+            box-shadow: 0 10px 24px rgba(2, 136, 209, 0.3);
             background: linear-gradient(145deg, #e3f2fd, #ffffff);
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item::before {
@@ -293,12 +508,12 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
+            height: 5px;
             background: linear-gradient(90deg, #0288d1, #81d4fa);
             transition: height 0.3s ease;
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item:hover::before {
-            height: 8px;
+            height: 10px;
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item .room-name {
             font-size: 18px;
@@ -314,7 +529,7 @@
             font-size: 16px;
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item .room-info {
-            font-size: 13px;
+            font-size: 14px;
             color: #546e7a;
             margin: 5px 0;
             display: flex;
@@ -323,11 +538,11 @@
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item .room-info.id::before {
             content: '🔢';
-            font-size: 13px;
+            font-size: 14px;
         }
         #chat-room.content .chat-room-container .room-list-panel .room-item .room-info.users::before {
             content: '👥';
-            font-size: 13px;
+            font-size: 14px;
         }
         #chat-room.content .chat-room-container .chat-panel {
             flex: 1;
@@ -344,53 +559,65 @@
         }
         #chat-room.content .chat-room-container .chat-panel .chat-header h4 {
             color: #0288d1;
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
         }
         #chat-room.content .chat-room-container .chat-panel .chat-header button {
             padding: 10px 20px;
             background: linear-gradient(90deg, #ef5350, #e53935);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        #chat-room.content .chat-room-container .chat-panel .chat-header button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 83, 80, 0.3);
-        }
-        #chat-room.content .chat-room-container .chat-panel .chat-area {
-            flex: 1;
-            background: #f9fbfc;
-            border-radius: 12px;
-            padding: 20px;
-            height: 400px;
-            overflow-y: auto;
-            border: 1px solid #b3e5fc;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
             transition: all 0.3s ease;
         }
+        #chat-room.content .chat-room-container .chat-panel .chat-header button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(239, 83, 80, 0.4);
+        }
+        #chat-room.content .chat-room-container .chat-panel .chat-area {
+            height: 400px;
+            background: rgba(249, 251, 252, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            border: 1px solid #b3e5fc;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+            flex: none;
+            backdrop-filter: blur(10px);
+        }
         #chat-room.content .chat-room-container .chat-panel .chat-area::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
         #chat-room.content .chat-room-container .chat-panel .chat-area::-webkit-scrollbar-thumb {
-            background: #81d4fa;
-            border-radius: 4px;
+            background: linear-gradient(180deg, #81d4fa, #0288d1);
+            border-radius: 5px;
         }
-        #chat-room.content .chat-room-container .chat-panel .message {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li {
             display: flex;
             align-items: flex-start;
             margin: 10px 0;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 12px 15px;
+            border-radius: 10px;
             font-size: 15px;
-            animation: messageSlideIn 0.3s ease;
+            animation: messageSlideIn 0.4s ease;
             max-width: 80%;
             word-wrap: break-word;
+            transition: all 0.3s ease;
         }
-        #chat-room.content .chat-room-container .chat-panel .message.system {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li:hover {
+            transform: translateX(5px);
+        }
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li.system {
             background: #eceff1;
             color: #546e7a;
             font-style: italic;
@@ -398,32 +625,39 @@
             margin-right: auto;
             text-align: center;
             max-width: 60%;
+            justify-content: center;
         }
-        #chat-room.content .chat-room-container .chat-panel .message.user {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li.user {
             background: #e3f2fd;
             color: #2d3748;
             margin-left: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        #chat-room.content .chat-room-container .chat-panel .message img {
-            width: 32px;
-            height: 32px;
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li img {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             margin-right: 10px;
             cursor: pointer;
             position: relative;
+            border: 2px solid #ffffff;
+            transition: transform 0.3s ease;
         }
-        #chat-room.content .chat-room-container .chat-panel .message .message-content {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li img:hover {
+            transform: scale(1.2);
+        }
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li .message-content {
             flex: 1;
         }
-        #chat-room.content .chat-room-container .chat-panel .message .message-sender {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li .message-sender {
             font-weight: 600;
             color: #0288d1;
             margin-bottom: 5px;
         }
-        #chat-room.content .chat-room-container .chat-panel .message .message-text {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li .message-text {
             line-height: 1.4;
         }
-        #chat-room.content .chat-room-container .chat-panel .message .message-timestamp {
+        #chat-room.content .chat-room-container .chat-panel .chat-area ul li .message-timestamp {
             font-size: 12px;
             color: #78909c;
             margin-top: 5px;
@@ -436,13 +670,16 @@
             flex: 1;
             padding: 12px;
             border: 1px solid #b3e5fc;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 15px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
         #chat-room.content .chat-room-container .chat-panel .message-input-group input:focus {
             border-color: #0288d1;
-            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            box-shadow: 0 0 12px rgba(2, 136, 209, 0.3);
+            background: #ffffff;
+            transform: scale(1.02);
             outline: none;
         }
         #chat-room.content .chat-room-container .chat-panel .message-input-group button {
@@ -450,81 +687,43 @@
             background: linear-gradient(90deg, #0288d1, #0277bd);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-        }
-        #chat-room.content .chat-room-container .chat-panel .message-input-group button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
-        }
-        #chat-room.content .room-controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f9fbfc;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
             transition: all 0.3s ease;
         }
-        #chat-room.content .room-controls input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #b3e5fc;
-            border-radius: 8px;
-            font-size: 15px;
-            background: #ffffff;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-        }
-        #chat-room.content .room-controls input:focus {
-            border-color: #0288d1;
-            box-shadow: 0 0 10px rgba(2, 136, 209, 0.2);
-            outline: none;
-            transform: scale(1.02);
-        }
-        #chat-room.content .room-controls button {
-            padding: 12px 24px;
-            background: linear-gradient(90deg, #0288d1, #0277bd);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
-        }
-        #chat-room.content .room-controls button:hover {
+        #chat-room.content .chat-room-container .chat-panel .message-input-group button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.3);
-            background: linear-gradient(90deg, #039be5, #0288d1);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
         }
         .user-popup {
             position: absolute;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid #81d4fa;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
             z-index: 1002;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.4s ease;
+            backdrop-filter: blur(10px);
         }
         .user-popup button {
             padding: 8px 16px;
             background: #0288d1;
             color: #ffffff;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         .user-popup button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
         }
         /* 新朋友页面样式 */
         #new-friends.content {
@@ -545,13 +744,16 @@
             max-width: 60%;
             padding: 12px;
             border: 1px solid #b3e5fc;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 15px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
         #new-friends.content .search-group input:focus {
             border-color: #0288d1;
-            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            box-shadow: 0 0 12px rgba(2, 136, 209, 0.3);
+            background: #ffffff;
+            transform: scale(1.02);
             outline: none;
         }
         #new-friends.content .search-group button {
@@ -559,14 +761,17 @@
             background: linear-gradient(90deg, #0288d1, #0277bd);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
         #new-friends.content .search-group button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
         }
         #new-friends.content .search-results {
             margin-top: 15px;
@@ -576,35 +781,50 @@
             align-items: center;
             padding: 12px;
             border-bottom: 1px solid #e0f7fa;
-            transition: background 0.2s ease;
-            animation: fadeIn 0.3s ease;
-            border-radius: 8px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.4s ease;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         #new-friends.content .search-results .result-item:hover {
             background: #e1f5fe;
+            transform: translateX(5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
         #new-friends.content .search-results .result-item img {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             margin-right: 12px;
+            border: 2px solid #81d4fa;
+            transition: transform 0.3s ease;
+        }
+        #new-friends.content .search-results .result-item img:hover {
+            transform: rotate(360deg);
         }
         #new-friends.content .search-results .result-item span {
             flex: 1;
+            font-size: 16px;
+            font-weight: 500;
         }
         #new-friends.content .search-results .result-item button {
             padding: 8px 16px;
             background: #0288d1;
             color: #ffffff;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-left: 12px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         #new-friends.content .search-results .result-item button:hover {
             background: #0277bd;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
         }
         /* 我的好友页面样式 */
         #my-friends.content {
@@ -623,14 +843,15 @@
             max-height: 500px;
             overflow-y: auto;
             background: #f9fbfc;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         #my-friends.content .my-friends .friend-list::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
         #my-friends.content .my-friends .friend-list::-webkit-scrollbar-thumb {
-            background: #81d4fa;
-            border-radius: 4px;
+            background: linear-gradient(180deg, #81d4fa, #0288d1);
+            border-radius: 5px;
         }
         #my-friends.content .my-friends .friend-list .friend-item {
             display: flex;
@@ -638,22 +859,32 @@
             padding: 12px;
             border-bottom: 1px solid #e0f7fa;
             cursor: pointer;
-            border-radius: 6px;
-            transition: background 0.2s ease, transform 0.2s ease;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 8px;
         }
         #my-friends.content .my-friends .friend-list .friend-item:hover {
             background: #e1f5fe;
-            transform: translateX(3px);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         #my-friends.content .my-friends .friend-list .friend-item.active {
-            background: #b3e5fc;
+            background: #0288d1;
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
+            transform: translateX(8px);
         }
         #my-friends.content .my-friends .friend-list .friend-item img {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             margin-right: 12px;
-            transition: filter 0.3s ease;
+            border: 2px solid #ffffff;
+            transition: all 0.3s ease;
+        }
+        #my-friends.content .my-friends .friend-list .friend-item img:hover {
+            transform: scale(1.2);
         }
         #my-friends.content .my-friends .friend-list .friend-item.offline img {
             filter: grayscale(100%);
@@ -665,34 +896,121 @@
             flex-direction: column;
             gap: 15px;
         }
+        #my-friends.content .my-friends .chat-panel .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-header h4 {
+            color: #0288d1;
+            font-size: 22px;
+            font-weight: 700;
+        }
         #my-friends.content .my-friends .chat-panel .chat-area {
-            flex: 1;
-            height: 320px;
+            height: 400px;
             border: 1px solid #b3e5fc;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow-y: auto;
-            padding: 15px;
-            background: #f9fbfc;
+            padding: 20px;
+            background: rgba(249, 251, 252, 0.95);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+            flex: none;
+            backdrop-filter: blur(10px);
         }
         #my-friends.content .my-friends .chat-panel .chat-area::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
         #my-friends.content .my-friends .chat-panel .chat-area::-webkit-scrollbar-thumb {
-            background: #81d4fa;
-            border-radius: 4px;
+            background: linear-gradient(180deg, #81d4fa, #0288d1);
+            border-radius: 5px;
         }
-        #my-friends.content .my-friends .chat-panel .message {
+        #my-friends.content .my-friends .chat-panel .chat-area ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li {
+            display: flex;
+            align-items: flex-start;
             margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
-            background: #e3f2fd;
-            animation: messageSlideIn 0.3s ease;
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 80%;
+            animation: messageSlideIn 0.4s ease;
+            transition: all 0.3s ease;
         }
-        #my-friends.content .my-friends .chat-panel .message.system {
+        #my-friends.content .my-friends .chat-panel .chat-area ul li:hover {
+            transform: translateX(5px);
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.sender {
+            background: #0288d1;
+            color: #ffffff;
+            margin-left: auto;
+            flex-direction: row-reverse;
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.receiver {
+            background: #e3f2fd;
+            color: #2d3748;
+            margin-right: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.system {
             background: #eceff1;
             color: #546e7a;
             font-style: italic;
+            margin-left: auto;
+            margin-right: auto;
             text-align: center;
+            max-width: 60%;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin: 0 10px;
+            border: 2px solid #ffffff;
+            transition: transform 0.3s ease;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li img:hover {
+            transform: scale(1.2);
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.sender img {
+            margin-left: 10px;
+            margin-right: 0;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.receiver img {
+            margin-right: 10px;
+            margin-left: 0;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li .message-content {
+            flex: 1;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li .message-sender {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.sender .message-sender {
+            color: #e3f2fd;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.receiver .message-sender {
+            color: #0288d1;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li .message-text {
+            line-height: 1.4;
+            font-size: 15px;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li .message-timestamp {
+            font-size: 12px;
+            color: #78909c;
+            margin-top: 5px;
+        }
+        #my-friends.content .my-friends .chat-panel .chat-area ul li.sender .message-timestamp {
+            color: #b3e5fc;
         }
         #my-friends.content .my-friends .chat-panel .message-input-group {
             display: flex;
@@ -702,13 +1020,16 @@
             flex: 1;
             padding: 12px;
             border: 1px solid #b3e5fc;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 15px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
         #my-friends.content .my-friends .chat-panel .message-input-group input:focus {
             border-color: #0288d1;
-            box-shadow: 0 0 8px rgba(2, 136, 209, 0.2);
+            box-shadow: 0 0 12px rgba(2, 136, 209, 0.3);
+            background: #ffffff;
+            transform: scale(1.02);
             outline: none;
         }
         #my-friends.content .my-friends .chat-panel .message-input-group button {
@@ -716,28 +1037,17 @@
             background: linear-gradient(90deg, #0288d1, #0277bd);
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
         #my-friends.content .my-friends .chat-panel .message-input-group button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
-        }
-        /* 好友动态页面样式 */
-        #friend-news.content {
-            display: block;
-            padding: 20px;
-        }
-        #friend-news.content .news-item {
-            padding: 12px;
-            border-bottom: 1px solid #e0f7fa;
-            border-radius: 6px;
-            transition: background 0.2s ease;
-        }
-        #friend-news.content .news-item:hover {
-            background: #e1f5fe;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
         }
         /* 动画 */
         @keyframes slideUp {
@@ -749,7 +1059,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -759,7 +1069,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(15px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -769,7 +1079,7 @@
         @keyframes slideInLeft {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateX(-30px);
             }
             to {
                 opacity: 1;
@@ -779,20 +1089,51 @@
         @keyframes messageSlideIn {
             from {
                 opacity: 0;
-                transform: translateX(-30px);
+                transform: translateX(-40px);
             }
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(2, 136, 209, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(2, 136, 209, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(2, 136, 209, 0);
+            }
+        }
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            }
+        }
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            20%, 60% {
+                transform: translateX(-5px);
+            }
+            40%, 80% {
+                transform: translateX(5px);
+            }
+        }
     </style>
 </head>
 <body>
+<canvas id="particle-bg"></canvas>
 <div class="container">
     <!-- 登录页面 -->
     <div id="login-page" class="auth-page">
-        <h2>登录</h2>
+        <h2><i class="fas fa-sign-in-alt"></i> 登录</h2>
         <input id="login-username" type="text" placeholder="账号" required>
         <input id="login-password" type="password" placeholder="密码" required>
         <div id="login-error" class="error"></div>
@@ -801,7 +1142,7 @@
     </div>
     <!-- 注册页面 -->
     <div id="register-page" class="auth-page hidden">
-        <h2>注册</h2>
+        <h2><i class="fas fa-user-plus"></i> 注册</h2>
         <input id="register-username" type="text" placeholder="用户名" required>
         <input id="register-password" type="password" placeholder="密码" required>
         <input id="register-image" type="file" accept="image/*">
@@ -812,32 +1153,32 @@
     <!-- 主页面 -->
     <div id="main-page" class="hidden">
         <div class="header">
-            <div class="site-name">实时群聊</div>
+            <div class="site-name"><i class="fas fa-comments"></i> 实时群聊</div>
             <div class="user-info">
-                <img src="./images/yoimiya1.jpg" alt="用户头像">
-                <button class="friend-request-btn" onclick="toggleFriendRequestPopup()">好友申请</button>
+                <img id="user-avatar" src="./images/yoimiya1.jpg" alt="用户头像">
+                <span id="user-name"></span>
+                <button class="friend-request-btn" onclick="toggleFriendRequestPopup()"><i class="fas fa-user-friends"></i> 好友申请</button>
             </div>
         </div>
-        <div class="friend-request-popup hidden" id="friend-request-popup"></div>
+        <div class="friend-request-popup hidden" id="friend-request-popup">
+            <h4>好友申请</h4>
+        </div>
         <div class="main-content">
             <div class="sidebar">
                 <ul>
-                    <li onclick="switchFunction('friend-news')" class="active">好友动态</li>
-                    <li onclick="switchFunction('chat-room')">聊天室</li>
-                    <li onclick="switchFunction('new-friends')">新朋友</li>
-                    <li onclick="switchFunction('my-friends')">我的好友</li>
+                    <li onclick="switchFunction('chat-room')" class="active"><i class="fas fa-comment-alt"></i> 聊天室</li>
+                    <li onclick="switchFunction('new-friends')"><i class="fas fa-user-plus"></i> 新朋友</li>
+                    <li onclick="switchFunction('my-friends')"><i class="fas fa-users"></i> 我的好友</li>
                 </ul>
             </div>
             <div class="center-area">
-                <!-- 好友动态 -->
-                <div id="friend-news" class="content">
-                    <h3>好友动态</h3>
-                    <div class="news-item">张三: 今天心情很好！</div>
-                    <div class="news-item">李四: 刚加入了一个新房间！</div>
-                </div>
                 <!-- 聊天室 -->
-                <div id="chat-room" class="content hidden">
+                <div id="chat-room" class="content">
                     <h3>聊天室</h3>
+                    <div class="room-controls">
+                        <input id="create-room-name" type="text" placeholder="输入新房间名称">
+                        <button onclick="createRoom()">创建房间</button>
+                    </div>
                     <div class="chat-room-container">
                         <div class="room-list-panel" id="room-list-panel">
                             <div id="room-list"></div>
@@ -847,16 +1188,14 @@
                                 <h4 id="chat-room-title"></h4>
                                 <button onclick="leaveRoom()">退出</button>
                             </div>
-                            <div class="chat-area" id="chat-area"></div>
+                            <div class="chat-area" id="chat-area">
+                                <ul id="room-chat-list"></ul>
+                            </div>
                             <div class="message-input-group">
                                 <input id="message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendRoomMessage()">
                                 <button onclick="sendRoomMessage()">发送</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="room-controls">
-                        <input id="create-room-name" type="text" placeholder="输入新房间名称">
-                        <button onclick="createRoom()">创建房间</button>
                     </div>
                 </div>
                 <!-- 新朋友 -->
@@ -874,7 +1213,12 @@
                     <div class="my-friends">
                         <div class="friend-list" id="friend-list"></div>
                         <div class="chat-panel">
-                            <div class="chat-area" id="friend-chat-area"></div>
+                            <div class="chat-header">
+                                <h4 id="friend-chat-title">请选择好友开始聊天</h4>
+                            </div>
+                            <div class="chat-area" id="friend-chat-area">
+                                <ul id="friend-chat-list"></ul>
+                            </div>
                             <div class="message-input-group">
                                 <input id="friend-message-input" type="text" placeholder="输入消息..." onkeypress="if(event.key === 'Enter') sendFriendMessage()">
                                 <button onclick="sendFriendMessage()">发送</button>
@@ -888,6 +1232,66 @@
 </div>
 
 <script>
+    // Particle Background
+    const canvas = document.getElementById('particle-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const particleCount = 100;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 5 + 1;
+            this.speedX = Math.random() * 1 - 0.5;
+            this.speedY = Math.random() * 1 - 0.5;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.size > 0.2) this.size -= 0.01;
+            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(129, 212, 250, 0.5)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, index) => {
+            particle.update();
+            particle.draw();
+            if (particle.size <= 0.2) {
+                particles.splice(index, 1);
+                particles.push(new Particle());
+            }
+        });
+        requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+    // Original JavaScript
     let socket = null;
     let username = '';
     let chatRoomState = {
@@ -896,6 +1300,10 @@
     };
     let myFriendsState = {
         currentFriend: ''
+    };
+    let user = {
+        username: '',
+        image: ''
     };
 
     function showPage(pageId) {
@@ -907,7 +1315,6 @@
         targetPage.classList.remove('hidden');
         setTimeout(() => {
             targetPage.style.opacity = '1';
-            // SMARTTAB
         }, 10);
         if (pageId === 'login-page') {
             document.getElementById('login-error').textContent = '';
@@ -932,14 +1339,27 @@
         document.querySelector(`.sidebar li[onclick="switchFunction('${funcId}')"]`).classList.add('active');
         if (funcId === 'chat-room' && socket) {
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
-            if (!chatRoomState.hasJoinedRoom) {
-                document.getElementById('room-list-panel').classList.remove('hidden');
-                document.getElementById('chat-panel').classList.add('hidden');
-            }
+            updateChatRoomUI();
         } else if (funcId === 'my-friends' && socket) {
             socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
+            document.getElementById('friend-chat-title').textContent = '请选择好友开始聊天';
         } else if (funcId === 'new-friends') {
             document.getElementById('search-results').innerHTML = '';
+        }
+    }
+
+    function updateChatRoomUI() {
+        const roomControls = document.querySelector('.room-controls');
+        const roomListPanel = document.getElementById('room-list-panel');
+        const chatPanel = document.getElementById('chat-panel');
+        if (chatRoomState.hasJoinedRoom) {
+            roomControls.classList.add('hidden');
+            roomListPanel.classList.add('hidden');
+            chatPanel.classList.remove('hidden');
+        } else {
+            roomControls.classList.remove('hidden');
+            roomListPanel.classList.remove('hidden');
+            chatPanel.classList.add('hidden');
         }
     }
 
@@ -1004,43 +1424,53 @@
             });
     }
 
+    function createRoom() {
+        const roomName = document.getElementById('create-room-name').value.trim();
+        if (!roomName || !socket) return;
+        socket.send(JSON.stringify({ type: 'CREAT_ROOM', content: roomName }));
+    }
+
     function handleMessage(event) {
         let msg;
         try {
             msg = JSON.parse(event.data);
+            console.log('Received message:', msg);
         } catch (e) {
+            console.error('Message parse error:', event.data);
             addRoomMessage('系统', '消息格式错误', true, true);
             return;
         }
-        if (msg.type === 'SUCCESS' && msg.content.includes('Login successful')) {
+        if (msg.type === 'LOGIN') {
             showPage('main-page');
-            switchFunction('friend-news');
+            switchFunction('chat-room');
+            user = JSON.parse(msg.content);
+            document.getElementById('user-name').textContent = user.username;
+            document.getElementById('user-avatar').src = user.image ? `./images/${user.image}` : './images/yoimiya1.jpg';
             socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
             socket.send(JSON.stringify({ type: 'APPLY_LIST' }));
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Register successful')) {
             document.getElementById('register-error').textContent = '注册成功，请登录';
             showPage('login-page');
-        } else if (msg.type === 'SUCCESS' && msg.content.includes('Friend request sent')) {
-            document.getElementById('search-results').innerHTML = '';
-            document.getElementById('search-user').value = '';
-            alert('好友请求已发送');
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Room created')) {
             document.getElementById('create-room-name').value = '';
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
             addRoomMessage('系统', '房间创建成功', true);
+        } else if (msg.type === 'SUCCESS' && msg.content.includes('Friend request sent')) {
+            document.getElementById('search-results').innerHTML = '';
+            document.getElementById('search-user').value = '';
+            alert('好友请求已发送');
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Joined room')) {
             chatRoomState.currentRoom = msg.content.split(':')[1].trim();
             chatRoomState.hasJoinedRoom = true;
             document.getElementById('chat-room-title').textContent = `聊天室: ${chatRoomState.currentRoom}`;
-            document.getElementById('room-list-panel').classList.add('hidden');
-            document.getElementById('chat-panel').classList.remove('hidden');
+            updateChatRoomUI();
             addRoomMessage('系统', `已加入房间 ${chatRoomState.currentRoom}`, true);
+            socket.send(JSON.stringify({ type: 'ROOM_CHAT_HISTORY', receiver: chatRoomState.currentRoom }));
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Left room')) {
             chatRoomState.currentRoom = '';
             chatRoomState.hasJoinedRoom = false;
-            document.getElementById('chat-area').innerHTML = '';
-            document.getElementById('room-list-panel').classList.remove('hidden');
-            document.getElementById('chat-panel').classList.add('hidden');
+            document.getElementById('room-chat-list').innerHTML = '';
+            updateChatRoomUI();
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
             addRoomMessage('系统', '已离开房间', true);
         } else if (msg.type === 'ERROR') {
@@ -1069,16 +1499,28 @@
         } else if (msg.type === 'FRIEND_LIST') {
             updateFriendList(JSON.parse(msg.content));
         } else if (msg.type === 'FRIEND_MSG') {
-            addFriendMessage(msg.sender, msg.content, msg.sender === myFriendsState.currentFriend);
+            console.log('Friend message:', msg);
+            const isRelated = msg.sender === myFriendsState.currentFriend || msg.receiver === myFriendsState.currentFriend;
+            if (isRelated) {
+                addFriendMessage(msg.sender, msg.content, true, msg.image);
+            }
         } else if (msg.type === 'APPLY_LIST') {
             updateFriendRequestList(JSON.parse(msg.content));
+        } else if (msg.type === 'CHAT_HISTORY') {
+            console.log('Friend chat history:', msg.content);
+            const history = JSON.parse(msg.content);
+            document.getElementById('friend-chat-list').innerHTML = '';
+            history.forEach(message => {
+                addFriendMessage(message.sender, message.content, true, message.image);
+            });
+        } else if (msg.type === 'ROOM_CHAT_HISTORY') {
+            console.log('Room chat history:', msg.content);
+            const history = JSON.parse(msg.content);
+            document.getElementById('room-chat-list').innerHTML = '';
+            history.forEach(message => {
+                addRoomMessage(message.sender, message.content, false, false, message.userId || message.sender, message.image);
+            });
         }
-    }
-
-    function createRoom() {
-        const roomName = document.getElementById('create-room-name').value.trim();
-        if (!roomName || !socket) return;
-        socket.send(JSON.stringify({ type: 'CREAT_ROOM', content: roomName }));
     }
 
     function joinRoom(roomId, roomName) {
@@ -1092,10 +1534,11 @@
     }
 
     function sendRoomMessage() {
-        const content = document.getElementById('message-input').value.trim();
+        const input = document.getElementById('message-input');
+        const content = input.value.trim();
         if (!content || !chatRoomState.currentRoom || !socket) return;
         socket.send(JSON.stringify({ type: 'ROOM_MSG', sender: username, receiver: chatRoomState.currentRoom, content }));
-        document.getElementById('message-input').value = '';
+        input.value = '';
     }
 
     function updateRoomList(rooms) {
@@ -1122,12 +1565,12 @@
 
     function addRoomMessage(sender, content, isSystem, isError = false, userId = '', image = '') {
         if (chatRoomState.hasJoinedRoom && !document.getElementById('chat-room').classList.contains('hidden')) {
-            const chatArea = document.getElementById('chat-area');
-            const div = document.createElement('div');
-            div.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
+            const chatList = document.getElementById('room-chat-list');
+            const li = document.createElement('li');
+            li.className = `message ${isSystem ? 'system' : 'user'} ${isError ? 'error' : ''}`;
             const timestamp = new Date().toLocaleTimeString();
             const imgSrc = image ? `./images/${image}` : './images/yoimiya1.jpg';
-            div.innerHTML = `
+            li.innerHTML = `
                 ${!isSystem ? `<img src="${imgSrc}" alt="头像" onclick="showUserPopup('${userId}', event)">` : ''}
                 <div class="message-content">
                     <div class="message-sender">${sender}</div>
@@ -1135,7 +1578,8 @@
                     <div class="message-timestamp">${timestamp}</div>
                 </div>
             `;
-            chatArea.appendChild(div);
+            chatList.appendChild(li);
+            const chatArea = document.getElementById('chat-area');
             chatArea.scrollTop = chatArea.scrollHeight;
         }
     }
@@ -1218,9 +1662,11 @@
 
     function selectFriend(friendId, friendName) {
         myFriendsState.currentFriend = friendId;
-        document.getElementById('friend-chat-area').innerHTML = '';
+        document.getElementById('friend-chat-list').innerHTML = '';
+        document.getElementById('friend-chat-title').textContent = `正在与 ${friendName} 聊天`;
+        socket.send(JSON.stringify({ type: 'CHAT_HISTORY', sender: username, receiver: friendId }));
+        addFriendMessage('系统', `开始与 ${friendName} 聊天`, true, '');
         socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
-        addFriendMessage('系统', `开始与 ${friendName} 聊天`, true);
     }
 
     function sendFriendMessage() {
@@ -1231,16 +1677,27 @@
         addFriendMessage(username, content, true);
     }
 
-    function addFriendMessage(sender, content, isCurrentFriend) {
-        if (!isCurrentFriend && sender !== myFriendsState.currentFriend) return;
-        if (!document.getElementById('my-friends').classList.contains('hidden')) {
-            const chatArea = document.getElementById('friend-chat-area');
-            const div = document.createElement('div');
-            div.className = `message ${sender === '系统' ? 'system' : 'user'}`;
-            div.textContent = `[${new Date().toLocaleTimeString()}] ${sender}: ${content}`;
-            chatArea.appendChild(div);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
+    function addFriendMessage(sender, content, isCurrentFriend, image = '') {
+        if (document.getElementById('my-friends').classList.contains('hidden')) return;
+
+        const chatList = document.getElementById('friend-chat-list');
+        const li = document.createElement('li');
+        const isSender = sender === username;
+        const isSystem = sender === '系统';
+        li.className = isSystem ? 'system' : (isSender ? 'sender' : 'receiver');
+        const timestamp = new Date().toLocaleTimeString();
+        const imgSrc = isSystem ? '' : (image ? `./images/${image}` : './images/yoimiya1.jpg');
+        li.innerHTML = `
+            ${!isSystem ? `<img src="${imgSrc}" alt="头像">` : ''}
+            <div class="message-content">
+                <div class="message-sender">${sender}</div>
+                <div class="message-text">${content}</div>
+                <div class="message-timestamp">${timestamp}</div>
+            </div>
+        `;
+        chatList.appendChild(li);
+        const chatArea = document.getElementById('friend-chat-area');
+        chatArea.scrollTop = chatArea.scrollHeight;
     }
 
     function toggleFriendRequestPopup() {
@@ -1253,14 +1710,18 @@
 
     function updateFriendRequestList(requests) {
         const popup = document.getElementById('friend-request-popup');
-        popup.innerHTML = '';
+        popup.innerHTML = '<h4>好友申请</h4>';
+        if (requests.length === 0) {
+            popup.innerHTML = '<p>暂无好友申请</p>';
+            return;
+        }
         requests.forEach(req => {
             const div = document.createElement('div');
             div.className = 'request-item';
             const src = './images/' + (req.image ? req.image : 'yoimiya1.jpg');
             div.innerHTML = `
                 <img src="${src}" alt="头像">
-                <span>${req.name}</span>
+                <span>${req.applicant}</span>
                 <button class="accept" onclick="acceptFriend('${req.id}')">同意</button>
                 <button class="reject" onclick="rejectFriend('${req.id}')">拒绝</button>
             `;
@@ -1279,14 +1740,6 @@
         socket.send(JSON.stringify({ type: 'REJECT_APPLY', receiver: userId }));
         toggleFriendRequestPopup();
     }
-
-    // // 初始化模拟数据
-    // updateRoomList([
-    //     { id: '1', name: '公共聊天室1', users: 5 },
-    //     { id: '2', name: '公共聊天室2', users: 3 },
-    //     { id: '3', name: '休闲聊天室', users: 8 },
-    //     { id: '4', name: '技术讨论', users: 4 }
-    // ]);
 </script>
 </body>
 </html>

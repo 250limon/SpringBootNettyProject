@@ -21,6 +21,20 @@ public class ApplyServiceImpl extends ServiceImpl<ApplyMapper, Apply> implements
     @Autowired
     private ApplyMapper applyMapper;
     @Override
+    public boolean caninsertApply(String applicant,String respondent) {
+
+        System.out.println("申请人: " +applicant+ ", 接收人: " + respondent);
+        Apply existing = applyMapper.selectOne(new QueryWrapper<Apply>()
+                .eq("applicant", applicant)
+                .eq("respondent", respondent));
+        System.out.println("查询结果: " + existing);
+        if(existing != null) {
+            System.out.println("申请已存在");
+            return false;
+        }
+        return true;
+    }
+    @Override
     public void insertApply(Apply apply) {
         if(apply == null || apply.getApplicant() == null || apply.getRespondent() == null) {
             throw new IllegalArgumentException("申请参数不完整");

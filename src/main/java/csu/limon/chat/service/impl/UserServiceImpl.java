@@ -7,6 +7,7 @@ import csu.limon.chat.mapper.UserMapper;
 import csu.limon.chat.pojo.Message;
 import csu.limon.chat.pojo.MessageType;
 import csu.limon.chat.pojo.User;
+import csu.limon.chat.pojo.vo.UserVo;
 import csu.limon.chat.service.UserService;
 import csu.limon.chat.util.JSONUtil;
 import csu.limon.chat.util.MessageSender;
@@ -106,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         System.out.println("Login successful");
                         ctx.channel().attr(AttributeKey.valueOf("user")).set(loginRequest.getUsername());
                         channels.put(loginRequest.getUsername(),ctx.channel());
-                        MessageSender.response(ctx,new Message(MessageType.SUCCESS,null,null,"Login successful"));
+                        MessageSender.response(ctx,new Message(MessageType.LOGIN,null,null,JSONUtil.toJsonString(getUserVoById(loginRequest.getUsername()))));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -114,6 +115,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
 
+    }
+
+    private UserVo getUserVoById(String userId) {
+        User user= userMapper.selectById(Integer.parseInt(userId));
+        UserVo userVo=new UserVo();
+        userVo.setUsername(user.getName());
+        userVo.setImage(user.getImage());
+
+        return userVo;
     }
 
 

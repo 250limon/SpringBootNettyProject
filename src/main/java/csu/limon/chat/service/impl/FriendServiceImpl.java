@@ -71,10 +71,28 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Override
     public void searchFriend(ChannelHandlerContext ctx, Message msg) throws Exception {
+        List<User>users=new ArrayList<>();
+            //判断是否为数字
+            if(msg.getContent().matches("\\d+")){//正则表达式，判断是否为数字
+                User user = userMapper.selectById(Integer.parseInt(msg.getContent()));
+                users.add(user);
+                if(user==null){
+                  List<User>  userList= userMapper.selectList(new QueryWrapper<User>()
+                            .like("name", msg.getContent()));
 
-            User user = userMapper.selectById(Integer.parseInt(msg.getContent()));
-            List<User>users=new ArrayList<>();
-            users.add(user);
+                    users.addAll(userList);
+                }
+
+            }
+            else{
+                List<User> userList= userMapper.selectList(new QueryWrapper<User>()
+                        .like("name", msg.getContent()));
+                users.addAll(userList);
+            }
+
+
+
+
             // 将用户列表转为JSON字符串发送
             MessageSender.response(ctx,
                     new Message(MessageType.SEARCH_FRIEND, null, null, JSONUtil.toJsonString(users)));
@@ -102,17 +120,44 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Override
     public void findApplyList(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        String existingUser = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+        System.out.println("当前用户名："+existingUser);
+        List<Apply> applyList = applyMapper.selectList(new QueryWrapper<Apply>()
+                .eq("respondent", existingUser));
+        MessageSender.response(ctx,new Message(MessageType.APPLY_LIST,null,null,JSONUtil.toJsonString(applyList)));
     }
 
     @Override
     public void receiveApply(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        String existingUser = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+        List<Apply> applyList =applyMapper.selectList(new QueryWrapper<Apply>()
+                .eq("respondent", existingUser));
+        Apply apply =applyList.get(0);
+        Friend friend1 = new Friend();
+        friend1.setUserId(Integer.valueOf(existingUser));
+        friend1.setFriendId(apply.getApplicant());
+        friendMapper.insert(friend1);
+        Friend friend2 = new Friend();
+        friend2.setUserId(apply.getApplicant());
+        friend2.setFriendId(Integer.valueOf(existingUser));
+        friendMapper.insert(friend2);
+        System.out.println("我的名字："+existingUser+"需添加好友名字："+apply.getApplicant());
+        applyMapper.delete(new QueryWrapper<Apply>()
+                .eq("respondent",existingUser)
+                .eq("applicant",apply.getApplicant()));
+        MessageSender.response(ctx, new Message(MessageType.SUCCESS, null, null, "同意添加好友"));
     }
 
     @Override
     public void rejectApply(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        String existingUser = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+        List<Apply> applyList =applyMapper.selectList(new QueryWrapper<Apply>()
+                .eq("respondent", existingUser));
+        Apply apply =applyList.get(0);
+        applyMapper.delete(new QueryWrapper<Apply>()
+                .eq("respondent",existingUser)
+                .eq("applicant",apply.getApplicant()));
+        MessageSender.response(ctx, new Message(MessageType.SUCCESS, null, null, "不同意好友"));
     }
 
 }
