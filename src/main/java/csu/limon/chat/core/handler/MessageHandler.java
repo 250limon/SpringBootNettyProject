@@ -33,7 +33,7 @@ public class MessageHandler extends ParentHandler {
        } else if (msg.getType()==MessageType.FRIEND_MSG) {
              messageService.friendMessageHandler(ctx,msg);
          } else if (msg.getType()==MessageType.FRIEND_GROUP_MSG) {
-             messageService.friendMessageHandler(ctx, msg);
+             messageService.sendFriendGroupMessage(ctx,msg);
          }
          else if (msg.getType()==MessageType.CHAT_HISTORY) {
              messageService.getChatHistory(ctx,msg);

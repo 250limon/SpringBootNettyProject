@@ -51,10 +51,7 @@ public class ChatRoomHandler extends ParentHandler {
         String username = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
         String roomId = chatRoomService.getUserRoom(ctx.channel());
         chatRoomService.leaveRoom(ctx.channel());
-        if (roomId != null) {
-            sendUserList(roomId);
-        }
-        System.out.println("User " + username + " disconnected from room: " + roomId);
+
         super.channelInactive(ctx);
     }
 }

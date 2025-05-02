@@ -68,6 +68,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         if (roomId != null) {
             ConcurrentHashMap<Channel, String> room = rooms.get(roomId);
             if (room != null) {
+                System.out.println("assadas");
                 String username = room.remove(channel);
                 System.out.println("User " + username + " left room: " + roomId + ", Channel: " + channel);
                 System.out.println("Current users in room " + roomId + ": " + (room.isEmpty() ? "none" : room.values()));

@@ -1301,10 +1301,13 @@
     let myFriendsState = {
         currentFriend: ''
     };
+    let friendList = [];
+
     let user = {
         username: '',
         image: ''
     };
+
 
     function showPage(pageId) {
         document.querySelectorAll('.auth-page, #main-page').forEach(page => {
@@ -1448,6 +1451,8 @@
             document.getElementById('user-avatar').src = user.image ? `./images/${user.image}` : './images/yoimiya1.jpg';
             socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
             socket.send(JSON.stringify({ type: 'APPLY_LIST' }));
+            socket.send(JSON.stringify({ type: 'FRIEND_GROUP_MSG',content:"我已登陆"}));
+
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Register successful')) {
             document.getElementById('register-error').textContent = '注册成功，请登录';
             showPage('login-page');
@@ -1491,13 +1496,33 @@
             addRoomMessage(msg.sender, msg.content, false, false, msg.userId, msg.image);
         } else if (msg.type === 'SEARCH_FRIEND') {
             const users = JSON.parse(msg.content);
-            if (document.getElementById('new-friends').classList.contains('hidden')) {
-                updateFriendList(users);
-            } else {
+
                 updateSearchResults(users);
-            }
+
         } else if (msg.type === 'FRIEND_LIST') {
-            updateFriendList(JSON.parse(msg.content));
+            let oldFriendList = JSON.parse(msg.content);
+            for(let friend of oldFriendList){
+                let newFriend = {
+                    id: friend.id,
+                    name: friend.name,
+                    image: friend.image,
+                    online: false
+                }
+                //判断是否已经存在
+                let index = friendList.findIndex(f => f.id === newFriend.id);
+                if(index !== -1){
+                    friendList[index] = newFriend;
+                }
+                else{
+                    friendList.push(newFriend);
+                }
+
+            }
+
+
+
+            updateFriendList(friendList);
+            socket.send(JSON.stringify({ type: 'LIVE_FEEDBACK' }));
         } else if (msg.type === 'FRIEND_MSG') {
             console.log('Friend message:', msg);
             const isRelated = msg.sender === myFriendsState.currentFriend || msg.receiver === myFriendsState.currentFriend;
@@ -1521,6 +1546,48 @@
                 addRoomMessage(message.sender, message.content, false, false, message.userId || message.sender, message.image);
             });
         }
+        else if(msg.type === 'FRIEND_GROUP_MSG'){
+            console.log('Friend group message:', msg)
+            updateFriendStatus(msg.sender,msg.content);
+        }
+        else if(msg.type === 'LIVE_FEEDBACK'){
+            console.log('Live feedback:', msg)
+            const friends_id= JSON.parse(msg.content);
+            for(let friend_id of friends_id){
+                for(let friend of friendList){
+
+                    if(friend.id.toString() === friend_id.toString()){
+                        friend.online = true;
+                        console.log(123)
+                        break;
+                    }
+                }
+            }
+            updateFriendList(friendList);
+        }
+    }
+
+    function updateFriendStatus(user_id, content) {
+
+        if (content === "我已登陆") {
+             for (let friend of friendList){
+                if (friend.id.toString() === user_id) {
+                    friend.online = true;
+                    break;
+                }
+            }
+        }
+        else if(content === "我已登出"){
+            for(let friend of friendList){
+                console.log(friend.id.toString(),user_id);
+                if(friend.id.toString() === user_id){
+                    friend.online = false;
+                    break;
+                }
+            }
+        }
+
+        updateFriendList(friendList);
     }
 
     function joinRoom(roomId, roomName) {
@@ -1668,6 +1735,8 @@
         addFriendMessage('系统', `开始与 ${friendName} 聊天`, true, '');
         socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
     }
+
+
 
     function sendFriendMessage() {
         const content = document.getElementById('friend-message-input').value.trim();

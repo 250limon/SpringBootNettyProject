@@ -10,4 +10,6 @@ public interface MessageService {
      void friendGroupMessageHandler(ChannelHandlerContext ctx,Message msg) throws Exception;
      void chatHistoryHandler(ChannelHandlerContext ctx, Message msg) throws Exception;
      void getChatHistory(ChannelHandlerContext ctx, Message msg) throws Exception;
+     void sendFriendGroupMessage(ChannelHandlerContext ctx, Message msg) throws Exception;
+     void liveFeedback(ChannelHandlerContext ctx, Message msg) throws Exception;
 }

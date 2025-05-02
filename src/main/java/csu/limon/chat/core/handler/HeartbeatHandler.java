@@ -25,6 +25,7 @@ public class HeartbeatHandler extends ParentHandler{
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        System.out.println("userEventTriggered");
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             switch (event.state()) {

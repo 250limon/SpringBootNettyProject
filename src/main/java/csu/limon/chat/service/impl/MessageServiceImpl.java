@@ -1,15 +1,20 @@
 package csu.limon.chat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import csu.limon.chat.mapper.FriendMapper;
 import csu.limon.chat.pojo.Chatmessage;
+import csu.limon.chat.pojo.Friend;
 import csu.limon.chat.pojo.Message;
 import csu.limon.chat.pojo.MessageType;
 import csu.limon.chat.service.ChatmessageService;
 import csu.limon.chat.service.MessageService;
 import csu.limon.chat.service.UserService;
 import csu.limon.chat.util.JSONUtil;
+import csu.limon.chat.util.MessageSender;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.AttributeKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +29,8 @@ public class MessageServiceImpl implements MessageService {
     private ChatmessageService chatmessageService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private FriendMapper friendMapper;
 
     //TODO:业务方法
     @Override
@@ -172,6 +179,45 @@ public class MessageServiceImpl implements MessageService {
         System.out.println("发送 CHAT_HISTORY 成功: " + JSONUtil.toJsonString(messageHistory));
     }
 
+    @Override
+    public void sendFriendGroupMessage(ChannelHandlerContext ctx, Message msg) throws Exception {
+
+        String senderUsername = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+        String content = msg.getContent();
+        int user_id=Integer.parseInt(senderUsername);
+        List<Friend> friends=friendMapper.selectList(new QueryWrapper<Friend>().eq("user_id",user_id));
+        for(int i=0;i<friends.size();i++) {
+            int friend_id=friends.get(i).getFriendId();
+            String friendUsername =String.valueOf(friend_id);
+            Channel friendChannel = userService.getChannelUserMap().get(String.valueOf(friend_id));
+            if (friendChannel != null && friendChannel.isActive()) {
+                friendChannel.writeAndFlush(new TextWebSocketFrame(
+                        JSONUtil.toJsonString(new Message(
+                                MessageType.FRIEND_GROUP_MSG,
+                                senderUsername,
+                                friendUsername,
+                                content
+                        ))
+                ));
+            }
+        }
+    }
+
+    @Override
+    public void liveFeedback(ChannelHandlerContext ctx, Message msg) throws Exception {
+        String senderUsername = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
+        int user_id=Integer.parseInt(senderUsername);
+        List<Friend> friends=friendMapper.selectList(new QueryWrapper<Friend>().eq("user_id",user_id));
+        List<Integer>friend_ids=new java.util.ArrayList<>();
+        for(int i=0;i<friends.size();i++) {
+            int friend_id=friends.get(i).getFriendId();
+            Channel friendChannel = userService.getChannelUserMap().get(String.valueOf(friend_id));
+            if (friendChannel != null && friendChannel.isActive()) {
+                friend_ids.add(friend_id);
+            }
+        }
+        MessageSender.response(ctx,new Message(MessageType.LIVE_FEEDBACK,null,null,JSONUtil.toJsonString(friend_ids)));
+    }
 
 
     // 辅助方法：验证字符串是否为数字

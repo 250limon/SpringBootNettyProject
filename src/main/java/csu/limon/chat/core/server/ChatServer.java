@@ -1,6 +1,7 @@
 package csu.limon.chat.core.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -29,7 +30,8 @@ public class ChatServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(chatServerInitializer)
                     .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
             ChannelFuture future = bootstrap.bind(port).sync();
             System.out.println("Chat server started on port " + port);
