@@ -1,6 +1,5 @@
 package csu.limon.chat.service.impl;
 
-
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import csu.limon.chat.core.handler.AuthHandler;
 import csu.limon.chat.mapper.UserMapper;
@@ -13,25 +12,24 @@ import csu.limon.chat.util.JSONUtil;
 import csu.limon.chat.util.MessageSender;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.AttributeKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     private Map<String, Channel> channels = new java.util.concurrent.ConcurrentHashMap<>();
 
-
     @Autowired
-    private  UserMapper userMapper;
+    private UserMapper userMapper;
 
     @Override
     public boolean isAccountExist(String sender) {
-        User user=userMapper.selectById(Integer.parseInt(sender));
-        if(user!=null) {
+        User user = userMapper.selectById(Integer.parseInt(sender));
+        if (user != null) {
             return true;
         }
         return false;
@@ -39,8 +37,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean isPasswordRight(String sender, String password) {
-        User user=userMapper.selectById(Integer.parseInt(sender));
-        if(user.getPassword().equals(password)) {
+        User user = userMapper.selectById(Integer.parseInt(sender));
+        if (user.getPassword().equals(password)) {
             return true;
         }
         return false;
@@ -52,7 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Map<String,Channel> getChannelUserMap() {
+    public Map<String, Channel> getChannelUserMap() {
         return channels;
     }
 
@@ -63,81 +61,68 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String existingUser = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
         if (existingUser != null) {
             System.out.println("Channel " + ctx.channel() + " already authenticated as: " + existingUser);
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "Channel already authenticated"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "Channel already authenticated"));
             ctx.close();
             return;
         }
-        isValidCredentials(loginRequest,ctx);
+        isValidCredentials(loginRequest, ctx);
     }
 
     @Override
     public void register(String username, String password, String image) throws Exception {
-        User user=new User();
+        User user = new User();
         user.setName(username);
         user.setPassword(password);
         user.setImage(image);
         userMapper.insert(user);
     }
 
-    private void isValidCredentials(AuthHandler.LoginRequest loginRequest,ChannelHandlerContext ctx) {
-        if(loginRequest.getUsername()!=null && loginRequest.getPassword()!=null) {
-            if(!isAccountExist(loginRequest.getUsername())){
-                try {
-                    System.out.println("账户不存在!");
-                    MessageSender.response(ctx,new Message(MessageType.ERROR,null,null,"账户不存在!"));
+    private void isValidCredentials(AuthHandler.LoginRequest loginRequest, ChannelHandlerContext ctx) throws IOException {
+        if (loginRequest.getUsername() != null && loginRequest.getPassword() != null) {
+            if (!isAccountExist(loginRequest.getUsername())) {
+                System.out.println("账户不存在!");
+                MessageSender.response(ctx,
+                        new Message(MessageType.ERROR, null, null, "账户不存在!"));
+                ctx.close();
+            } else {
+                if (!isPasswordRight(loginRequest.getUsername(), loginRequest.getPassword())) {
+                    System.out.println("密码不正确!");
+                    MessageSender.response(ctx,
+                            new Message(MessageType.ERROR, null, null, "密码不正确!"));
                     ctx.close();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            else {
-                if(!isPasswordRight(loginRequest.getUsername(),loginRequest.getPassword())){
-                    try {
-                        System.out.println("密码不正确!");
-                        MessageSender.response(ctx,new Message(MessageType.ERROR,null,null,"密码不正确!"));
-                        ctx.close();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                else {
-                    try {
-                        System.out.println("Login successful");
-                        ctx.channel().attr(AttributeKey.valueOf("user")).set(loginRequest.getUsername());
-                        channels.put(loginRequest.getUsername(),ctx.channel());
-                        MessageSender.response(ctx,new Message(MessageType.LOGIN,null,null,JSONUtil.toJsonString(getUserVoById(loginRequest.getUsername()))));
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                } else {
+                    System.out.println("Login successful");
+                    ctx.channel().attr(AttributeKey.valueOf("user")).set(loginRequest.getUsername());
+                    channels.put(loginRequest.getUsername(), ctx.channel());
+                    MessageSender.response(ctx,
+                            new Message(MessageType.LOGIN, null, null, JSONUtil.toJsonString(getUserVoById(loginRequest.getUsername()))));
                 }
             }
         }
-
     }
 
     private UserVo getUserVoById(String userId) {
-        User user= userMapper.selectById(Integer.parseInt(userId));
-        UserVo userVo=new UserVo();
+        User user = userMapper.selectById(Integer.parseInt(userId));
+        UserVo userVo = new UserVo();
         userVo.setUsername(user.getName());
         userVo.setImage(user.getImage());
-
         return userVo;
     }
 
-
-
-
     @Override
     public void getUser(ChannelHandlerContext ctx, Message msg) throws Exception {
-        String userId=msg.getContent();
-        User user=userMapper.selectById(Integer.parseInt(userId));
-        String Juser=JSONUtil.toJsonString(user);
-        String Username = user.getName();
-        String Password = user.getPassword();
-        String Image = user.getImage();
-        MessageSender.response(ctx,new Message(MessageType.GET_USER,null,null,Juser));
+        String userId = msg.getContent();
+        User user = userMapper.selectById(Integer.parseInt(userId));
+        String Juser = JSONUtil.toJsonString(user);
+        MessageSender.response(ctx,
+                new Message(MessageType.GET_USER, null, null, Juser));
+    }
+
+    @Override
+    public User getUserById(String userId) {
+        return userMapper.selectById(Integer.parseInt(userId));
+
     }
 
     class RegisterRequest {
@@ -170,7 +155,3 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 }
-
-
-
-

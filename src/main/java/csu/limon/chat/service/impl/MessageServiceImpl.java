@@ -18,6 +18,7 @@ import io.netty.util.AttributeKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,24 +33,20 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private FriendMapper friendMapper;
 
-    //TODO:业务方法
     @Override
-    public void groupMessageHandle(ChannelHandlerContext ctx, Message msg) throws Exception{
+    public void groupMessageHandle(ChannelHandlerContext ctx, Message msg) throws Exception {
         if (msg.getReceiver() != null) {
-            // 验证用户是否在房间中
             String currentRoom = chatRoomService.getUserRoom(ctx.channel());
             if (currentRoom != null && currentRoom.equals(msg.getReceiver())) {
                 chatRoomService.broadcastMessage(msg.getReceiver(), msg);
             } else {
-                ctx.writeAndFlush(new TextWebSocketFrame(
-                        JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "Not in room: " + msg.getReceiver()))
-                ));
+                MessageSender.response(ctx,
+                        new Message(MessageType.ERROR, null, null, "Not in room: " + msg.getReceiver()));
                 System.out.println("Rejected MSG from user not in room: " + msg);
             }
         } else {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "Room ID required"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "Room ID required"));
             System.out.println("Rejected MSG with null roomId: " + msg);
         }
     }
@@ -62,15 +59,13 @@ public class MessageServiceImpl implements MessageService {
 
         // 1. 校验输入
         if (senderUsername == null || receiverUsername == null || content == null) {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "发送者、接收者或内容为空"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "发送者、接收者或内容为空"));
             return;
         }
         if (!isNumeric(senderUsername) || !isNumeric(receiverUsername)) {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "用户名必须为数字"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "用户名必须为数字"));
             return;
         }
 
@@ -82,9 +77,8 @@ public class MessageServiceImpl implements MessageService {
         try {
             chatmessageService.insertChatMessage(chatmessage);
         } catch (Exception e) {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "保存消息到数据库失败"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "保存消息到数据库失败"));
             return;
         }
 
@@ -92,32 +86,22 @@ public class MessageServiceImpl implements MessageService {
         msg.setType(MessageType.FRIEND_MSG);
         Channel receiverChannel = userService.getChannelUserMap().get(receiverUsername);
         if (receiverChannel != null && receiverChannel.isActive()) {
-            receiverChannel.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(msg)
-            ));
+            MessageSender.response(receiverChannel.pipeline().lastContext(), msg);
         } else {
-            // 对方不在线
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(
-                            MessageType.ERROR,
-                            null, null,
-                            "对方不在线，消息已保存"
-                    ))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "对方不在线，消息已保存"));
         }
     }
 
-
     @Override
     public void friendGroupMessageHandler(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        // 未实现，保持原样
     }
 
     @Override
     public void chatHistoryHandler(ChannelHandlerContext ctx, Message msg) throws Exception {
-
+        // 未实现，保持原样
     }
-
 
     @Override
     public void getChatHistory(ChannelHandlerContext ctx, Message msg) throws Exception {
@@ -126,18 +110,16 @@ public class MessageServiceImpl implements MessageService {
         System.out.println("收到CHAT_HISTORY请求");
         // 验证输入
         if (senderUsername == null || friendUsername == null) {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "发送者或接收者为空"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "发送者或接收者为空"));
             System.out.println("拒绝无效字段的聊天记录请求: " + msg);
             return;
         }
 
         // 验证用户名是否为数字
         if (!isNumeric(senderUsername) || !isNumeric(friendUsername)) {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "用户名必须为数字"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "用户名必须为数字"));
             System.out.println("拒绝非数字用户名的聊天记录请求: sender=" + senderUsername + ", friend=" + friendUsername);
             return;
         }
@@ -147,9 +129,8 @@ public class MessageServiceImpl implements MessageService {
         try {
             history = chatmessageService.getChatMessage(senderUsername, friendUsername);
         } catch (Exception e) {
-            ctx.writeAndFlush(new TextWebSocketFrame(
-                    JSONUtil.toJsonString(new Message(MessageType.ERROR, null, null, "获取聊天记录失败"))
-            ));
+            MessageSender.response(ctx,
+                    new Message(MessageType.ERROR, null, null, "获取聊天记录失败"));
             System.out.println("获取聊天记录时错误: " + e.getMessage());
             return;
         }
@@ -165,40 +146,24 @@ public class MessageServiceImpl implements MessageService {
                 .collect(Collectors.toList());
 
         // 发送聊天记录
-
-
-
-        ctx.writeAndFlush(new TextWebSocketFrame(
-                JSONUtil.toJsonString(new Message(
-                        MessageType.CHAT_HISTORY,
-                        senderUsername,
-                        friendUsername,
-                        JSONUtil.toJsonString(messageHistory)
-                ))
-        ));
+        MessageSender.response(ctx,
+                new Message(MessageType.CHAT_HISTORY, senderUsername, friendUsername, JSONUtil.toJsonString(messageHistory)));
         System.out.println("发送 CHAT_HISTORY 成功: " + JSONUtil.toJsonString(messageHistory));
     }
 
     @Override
     public void sendFriendGroupMessage(ChannelHandlerContext ctx, Message msg) throws Exception {
-
         String senderUsername = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
         String content = msg.getContent();
-        int user_id=Integer.parseInt(senderUsername);
-        List<Friend> friends=friendMapper.selectList(new QueryWrapper<Friend>().eq("user_id",user_id));
-        for(int i=0;i<friends.size();i++) {
-            int friend_id=friends.get(i).getFriendId();
-            String friendUsername =String.valueOf(friend_id);
+        int user_id = Integer.parseInt(senderUsername);
+        List<Friend> friends = friendMapper.selectList(new QueryWrapper<Friend>().eq("user_id", user_id));
+        for (int i = 0; i < friends.size(); i++) {
+            int friend_id = friends.get(i).getFriendId();
+            String friendUsername = String.valueOf(friend_id);
             Channel friendChannel = userService.getChannelUserMap().get(String.valueOf(friend_id));
             if (friendChannel != null && friendChannel.isActive()) {
-                friendChannel.writeAndFlush(new TextWebSocketFrame(
-                        JSONUtil.toJsonString(new Message(
-                                MessageType.FRIEND_GROUP_MSG,
-                                senderUsername,
-                                friendUsername,
-                                content
-                        ))
-                ));
+                MessageSender.response(friendChannel.pipeline().lastContext(),
+                        new Message(MessageType.FRIEND_GROUP_MSG, senderUsername, friendUsername, content));
             }
         }
     }
@@ -206,19 +171,19 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void liveFeedback(ChannelHandlerContext ctx, Message msg) throws Exception {
         String senderUsername = (String) ctx.channel().attr(AttributeKey.valueOf("user")).get();
-        int user_id=Integer.parseInt(senderUsername);
-        List<Friend> friends=friendMapper.selectList(new QueryWrapper<Friend>().eq("user_id",user_id));
-        List<Integer>friend_ids=new java.util.ArrayList<>();
-        for(int i=0;i<friends.size();i++) {
-            int friend_id=friends.get(i).getFriendId();
+        int user_id = Integer.parseInt(senderUsername);
+        List<Friend> friends = friendMapper.selectList(new QueryWrapper<Friend>().eq("user_id", user_id));
+        List<Integer> friend_ids = new ArrayList<>();
+        for (int i = 0; i < friends.size(); i++) {
+            int friend_id = friends.get(i).getFriendId();
             Channel friendChannel = userService.getChannelUserMap().get(String.valueOf(friend_id));
             if (friendChannel != null && friendChannel.isActive()) {
                 friend_ids.add(friend_id);
             }
         }
-        MessageSender.response(ctx,new Message(MessageType.LIVE_FEEDBACK,null,null,JSONUtil.toJsonString(friend_ids)));
+        MessageSender.response(ctx,
+                new Message(MessageType.LIVE_FEEDBACK, null, null, JSONUtil.toJsonString(friend_ids)));
     }
-
 
     // 辅助方法：验证字符串是否为数字
     private boolean isNumeric(String str) {

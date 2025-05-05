@@ -158,7 +158,7 @@
             font-size: 30px;
             color: #ffffff;
             font-weight: 700;
-            letter-spacing: 1.5px;
+            letter-Spacing: 1.5px;
             position: relative;
             animation: glow 2s ease-in-out infinite alternate;
         }
@@ -424,6 +424,32 @@
             background: #ffffff;
             transform: scale(1.02);
             outline: none;
+        }
+        .user-popup {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #81d4fa;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            animation: fadeIn 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
+        .user-popup button {
+            padding: 8px 16px;
+            background: #0288d1;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .user-popup button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
         }
         #chat-room.content .room-controls button {
             padding: 12px 20px;
@@ -699,32 +725,6 @@
             transform: translateY(-3px);
             box-shadow: 0 6px 16px rgba(2, 136, 209, 0.4);
         }
-        .user-popup {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid #81d4fa;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1002;
-            animation: fadeIn 0.4s ease;
-            backdrop-filter: blur(10px);
-        }
-        .user-popup button {
-            padding: 8px 16px;
-            background: #0288d1;
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .user-popup button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
-        }
         /* 新朋友页面样式 */
         #new-friends.content {
             display: block;
@@ -825,6 +825,46 @@
             background: #0277bd;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4);
+        }
+        #new-friends.content .search-results .result-item button:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #new-friends.content .search-results .result-item button.loading {
+            background: #b0bec5;
+            cursor: wait;
+        }
+        #new-friends.content .search-results .result-item button.loading::after {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1002;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        }
+        .notification.success {
+            background: #4caf50;
+        }
+        .notification.error {
+            background: #d32f2f;
         }
         /* 我的好友页面样式 */
         #my-friends.content {
@@ -1086,6 +1126,22 @@
                 transform: translateX(0);
             }
         }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
         @keyframes messageSlideIn {
             from {
                 opacity: 0;
@@ -1126,6 +1182,11 @@
                 transform: translateX(5px);
             }
         }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1160,7 +1221,7 @@
                 <button class="friend-request-btn" onclick="toggleFriendRequestPopup()"><i class="fas fa-user-friends"></i> 好友申请</button>
             </div>
         </div>
-        <div class="friend-request-popup hidden" id="friend-request-popup">
+        <div class sprocket-id="friend-request-popup" class="friend-request-popup hidden">
             <h4>好友申请</h4>
         </div>
         <div class="main-content">
@@ -1308,7 +1369,6 @@
         image: ''
     };
 
-
     function showPage(pageId) {
         document.querySelectorAll('.auth-page, #main-page').forEach(page => {
             page.classList.add('hidden');
@@ -1433,6 +1493,16 @@
         socket.send(JSON.stringify({ type: 'CREAT_ROOM', content: roomName }));
     }
 
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
     function handleMessage(event) {
         let msg;
         try {
@@ -1451,8 +1521,7 @@
             document.getElementById('user-avatar').src = user.image ? `./images/${user.image}` : './images/yoimiya1.jpg';
             socket.send(JSON.stringify({ type: 'FRIEND_LIST' }));
             socket.send(JSON.stringify({ type: 'APPLY_LIST' }));
-            socket.send(JSON.stringify({ type: 'FRIEND_GROUP_MSG',content:"我已登陆"}));
-
+            socket.send(JSON.stringify({ type: 'FRIEND_GROUP_MSG', content: "我已登陆" }));
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Register successful')) {
             document.getElementById('register-error').textContent = '注册成功，请登录';
             showPage('login-page');
@@ -1461,9 +1530,9 @@
             socket.send(JSON.stringify({ type: 'ROOM_LIST' }));
             addRoomMessage('系统', '房间创建成功', true);
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Friend request sent')) {
-            document.getElementById('search-results').innerHTML = '';
+            showNotification('好友请求已发送', 'success');
             document.getElementById('search-user').value = '';
-            alert('好友请求已发送');
+            socket.send(JSON.stringify({ type: 'SEARCH_FRIEND', content: document.getElementById('search-user').value.trim() }));
         } else if (msg.type === 'SUCCESS' && msg.content.includes('Joined room')) {
             chatRoomState.currentRoom = msg.content.split(':')[1].trim();
             chatRoomState.hasJoinedRoom = true;
@@ -1484,7 +1553,7 @@
             } else if (msg.content.includes('User not found')) {
                 document.getElementById('login-error').textContent = '账号不存在';
             } else if (msg.content.includes('ADD_FRIEND')) {
-                alert('添加好友失败: ' + msg.content);
+                showNotification('添加好友失败: ' + msg.content, 'error');
             } else {
                 document.getElementById('login-error').textContent = msg.content;
                 document.getElementById('register-error').textContent = msg.content;
@@ -1493,39 +1562,31 @@
             updateRoomList(JSON.parse(msg.content));
             console.log('房间列表:', msg.content);
         } else if (msg.type === 'ROOM_MSG') {
-            addRoomMessage(msg.sender, msg.content, false, false, msg.userId, msg.image);
+            console.log('Room message:', msg);
+            let user = JSON.parse(msg.content);
+            console.log(user);
+            addRoomMessage(user.sender.name, user.content, false, false, msg.sender, user.sender.image);
         } else if (msg.type === 'SEARCH_FRIEND') {
             const users = JSON.parse(msg.content);
-
-                updateSearchResults(users);
-
+            updateSearchResults(users);
         } else if (msg.type === 'FRIEND_LIST') {
             let oldFriendList = JSON.parse(msg.content);
-            for(let friend of oldFriendList){
+            friendList = [];
+            for (let friend of oldFriendList) {
                 let newFriend = {
                     id: friend.id,
                     name: friend.name,
                     image: friend.image,
                     online: false
-                }
-                //判断是否已经存在
-                let index = friendList.findIndex(f => f.id === newFriend.id);
-                if(index !== -1){
-                    friendList[index] = newFriend;
-                }
-                else{
-                    friendList.push(newFriend);
-                }
-
+                };
+                friendList.push(newFriend);
             }
-
-
-
             updateFriendList(friendList);
             socket.send(JSON.stringify({ type: 'LIVE_FEEDBACK' }));
         } else if (msg.type === 'FRIEND_MSG') {
             console.log('Friend message:', msg);
-            const isRelated = msg.sender === myFriendsState.currentFriend || msg.receiver === myFriendsState.currentFriend;
+            console.log('myFriendsState.currentFriend:', myFriendsState.currentFriend);
+            const isRelated = msg.sender === myFriendsState.currentFriend.toString();
             if (isRelated) {
                 addFriendMessage(msg.sender, msg.content, true, msg.image);
             }
@@ -1545,20 +1606,16 @@
             history.forEach(message => {
                 addRoomMessage(message.sender, message.content, false, false, message.userId || message.sender, message.image);
             });
-        }
-        else if(msg.type === 'FRIEND_GROUP_MSG'){
-            console.log('Friend group message:', msg)
-            updateFriendStatus(msg.sender,msg.content);
-        }
-        else if(msg.type === 'LIVE_FEEDBACK'){
-            console.log('Live feedback:', msg)
-            const friends_id= JSON.parse(msg.content);
-            for(let friend_id of friends_id){
-                for(let friend of friendList){
-
-                    if(friend.id.toString() === friend_id.toString()){
+        } else if (msg.type === 'FRIEND_GROUP_MSG') {
+            console.log('Friend group message:', msg);
+            updateFriendStatus(msg.sender, msg.content);
+        } else if (msg.type === 'LIVE_FEEDBACK') {
+            console.log('Live feedback:', msg);
+            const friends_id = JSON.parse(msg.content);
+            for (let friend_id of friends_id) {
+                for (let friend of friendList) {
+                    if (friend.id.toString() === friend_id.toString()) {
                         friend.online = true;
-                        console.log(123)
                         break;
                     }
                 }
@@ -1568,25 +1625,21 @@
     }
 
     function updateFriendStatus(user_id, content) {
-
         if (content === "我已登陆") {
-             for (let friend of friendList){
+            for (let friend of friendList) {
                 if (friend.id.toString() === user_id) {
                     friend.online = true;
                     break;
                 }
             }
-        }
-        else if(content === "我已登出"){
-            for(let friend of friendList){
-                console.log(friend.id.toString(),user_id);
-                if(friend.id.toString() === user_id){
+        } else if (content === "我已登出") {
+            for (let friend of friendList) {
+                if (friend.id.toString() === user_id) {
                     friend.online = false;
                     break;
                 }
             }
         }
-
         updateFriendList(friendList);
     }
 
@@ -1654,20 +1707,42 @@
     function showUserPopup(userId, event) {
         const existingPopup = document.querySelector('.user-popup');
         if (existingPopup) existingPopup.remove();
-        if (userId === username) return;
+        if (userId === username) return; // 防止对自己操作
+
+        // 获取用户信息
+        const messageLi = event.target.closest('li');
+        const sender = messageLi.querySelector('.message-sender').textContent;
+        const imageSrc = messageLi.querySelector('img').src;
+
         const popup = document.createElement('div');
         popup.className = 'user-popup';
-        popup.innerHTML = `<button onclick="addFriend('${userId}')">申请加好友</button>`;
+        popup.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <img src="${imageSrc}" alt="头像" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #81d4fa;">
+                <div>
+                    <div style="font-weight: 600; color: #0288d1;">${sender}</div>
+                    <div style="font-size: 12px; color: #546e7a;">ID: ${userId}</div>
+                </div>
+            </div>
+            <button onclick="addFriend('${userId}')">申请加好友</button>
+        `;
         document.body.appendChild(popup);
+
         const img = event.target;
         const rect = img.getBoundingClientRect();
+        const popupWidth = 200; // 假设宽度
+        const popupHeight = 100; // 假设高度
         popup.style.left = `${rect.right + 10}px`;
-        popup.style.top = `${rect.top}px`;
-        document.addEventListener('click', (e) => {
+        popup.style.top = `${rect.top + (img.height - popupHeight) / 2 + 80}px`;
+
+        // 全局点击事件监听
+        const handleClickOutside = (e) => {
             if (!popup.contains(e.target) && e.target !== img) {
                 popup.remove();
+                document.removeEventListener('click', handleClickOutside);
             }
-        }, { once: true });
+        };
+        document.addEventListener('click', handleClickOutside);
     }
 
     function searchUser() {
@@ -1687,13 +1762,14 @@
             return;
         }
         users.forEach(user => {
+            const isFriend = friendList.some(friend => friend.id.toString() === user.id.toString());
             const div = document.createElement('div');
             const src = './images/' + (user.image ? user.image : 'yoimiya1.jpg');
             div.className = 'result-item' + (user.online ? '' : ' offline');
             div.innerHTML = `
                 <img src="${src}" alt="头像">
                 <span>${user.name}</span>
-                <button onclick="addFriend('${user.id}')">添加好友</button>
+                <button onclick="addFriend('${user.id}')" ${isFriend ? 'disabled' : ''}>${isFriend ? '已是好友' : '添加好友'}</button>
             `;
             searchResults.appendChild(div);
         });
@@ -1701,10 +1777,24 @@
 
     function addFriend(userId) {
         if (!socket) {
-            alert('未连接到服务器，请重新登录');
+            showNotification('未连接到服务器，请重新登录', 'error');
             return;
         }
+        const button = document.querySelector(`button[onclick="addFriend('${userId}')"]`);
+        if (!button || button.disabled) return;
+
+        button.classList.add('loading');
+        button.disabled = true;
+        button.textContent = '发送中';
+
         socket.send(JSON.stringify({ type: 'ADD_FRIEND', receiver: userId }));
+
+        // 模拟服务器响应延迟（实际由服务器处理）
+        setTimeout(() => {
+            button.classList.remove('loading');
+            button.textContent = '添加好友';
+            button.disabled = false;
+        }, 2000);
     }
 
     function updateFriendList(friends) {
